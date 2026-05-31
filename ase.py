@@ -19,7 +19,7 @@ def cmd_handbook(args: argparse.Namespace) -> int:
     if getattr(args, "name", None):
         path = HANDBOOKS.get(args.name)
         if not path or not path.exists():
-            print(f"Unknown handbook: {args.name}. Choose: red, purple")
+            print(f"Unknown handbook: {args.name}. Choose: red, purple, network")
             return 1
         print(path.read_text())
         return 0
@@ -41,6 +41,7 @@ PLAYBOOKS = {
 HANDBOOKS = {
     "red": DOCS / "RED_TEAM_HANDBOOK.md",
     "purple": DOCS / "PURPLE_TEAM_HANDBOOK.md",
+    "network": DOCS / "NETWORK_2026_GUIDE.md",
 }
 
 PURPLE_ROOT = ROOT / "purple"
@@ -56,6 +57,27 @@ def cmd_aura(args: argparse.Namespace) -> int:
     if args.ports:
         extra.extend(["--ports", args.ports])
     return _run_tool("aura.py", extra)
+
+
+def cmd_network(args: argparse.Namespace) -> int:
+    extra: list[str] = []
+    if args.targets:
+        extra.extend(["--targets", args.targets])
+    elif args.target:
+        extra.append(args.target)
+    else:
+        print("Provide target or --targets")
+        return 1
+    extra.extend(["--output-dir", args.output_dir])
+    if args.aggressive:
+        extra.append("--aggressive")
+    if args.shodan:
+        extra.append("--shodan")
+    if args.skip_external:
+        extra.append("--skip-external")
+    if args.skip_ase:
+        extra.append("--skip-ase")
+    return _run_tool("network_recon.py", extra)
 
 
 def cmd_playbook(args: argparse.Namespace) -> int:
@@ -175,7 +197,7 @@ def build_parser() -> argparse.ArgumentParser:
     handbook.add_argument(
         "name",
         nargs="?",
-        choices=["red", "purple"],
+        choices=["red", "purple", "network"],
         help="Handbook to display (default: red CVE handbook)",
     )
     handbook.set_defaults(func=cmd_handbook)
@@ -203,6 +225,16 @@ def build_parser() -> argparse.ArgumentParser:
     aura.add_argument("--skip-subdomains", action="store_true")
     aura.add_argument("--output-dir", default="reports/aura")
     aura.set_defaults(func=cmd_aura)
+
+    network = sub.add_parser("network", help="2026 network recon (tlsx/nuclei + ASE)")
+    network.add_argument("target", nargs="?", help="Single target")
+    network.add_argument("--targets", help="Targets file")
+    network.add_argument("--output-dir", default="reports/network")
+    network.add_argument("--aggressive", action="store_true")
+    network.add_argument("--shodan", action="store_true")
+    network.add_argument("--skip-external", action="store_true")
+    network.add_argument("--skip-ase", action="store_true")
+    network.set_defaults(func=cmd_network)
 
     list_cves = sub.add_parser("cves", help="List tracked CVEs")
     list_cves.add_argument(

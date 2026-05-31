@@ -103,3 +103,5 @@ See [docs/RED_TEAM_HANDBOOK.md](docs/RED_TEAM_HANDBOOK.md) for the full handbook
 | Purple Team | `python3 ase.py playbook purple` | Joint attack/defense loops and scoring |
 | Purple Handbook | `python3 ase.py handbook purple` | Detection rules, hunting, IR, script index |
 | Script index | `python3 ase.py scripts` | All toolkit + detection assets in one list |
+| Network 2026 guide | `python3 ase.py handbook network` | QUIC/DoH/modern recon methodology |
+| Network recon | `python3 ase.py network target.com` | tlsx + nuclei + ASE orchestrator |

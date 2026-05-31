@@ -1,0 +1,21 @@
+title: DNS-over-HTTPS Exfiltration Pattern
+id: ase-purple-008
+status: experimental
+description: Detects suspicious DoH resolver queries with long encoded subdomains
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: proxy
+detection:
+  selection:
+    url|contains:
+      - 'dns.google/resolve'
+      - 'cloudflare-dns.com/dns-query'
+      - 'dns.quad9.net/dns-query'
+    url|re: 'name=[A-Za-z0-9+/=]{40,}'
+  condition: selection
+falsepositives:
+  - Legitimate DoH clients
+level: high
+tags:
+  - attack.exfiltration
+  - attack.t1048

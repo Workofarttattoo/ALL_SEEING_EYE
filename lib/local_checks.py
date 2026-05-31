@@ -167,9 +167,30 @@ def check_local_privileges(report: ScanReport) -> None:
     )
 
 
+def check_nf_tables_cve_2024_1086(report: ScanReport) -> None:
+    if platform.system() != "Linux":
+        return
+
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2024-1086 (nf_tables LPE surface)...{Colors.END}")
+    _, release, _ = _run(["uname", "-r"])
+    release = release.strip()
+    nf_path = Path("/proc/sys/net/netfilter/nf_tables")
+    if nf_path.exists() or Path("/sys/module/nf_tables").exists():
+        report.add(
+            Finding(
+                cve="CVE-2024-1086",
+                category="local",
+                confidence="LOW",
+                notes=f"nf_tables present on kernel {release} — verify patch for local priv esc",
+                extra={"kernel": release},
+            )
+        )
+
+
 def run_local_checks(report: ScanReport) -> None:
     check_local_privileges(report)
     check_linux_kernel_surface(report)
+    check_nf_tables_cve_2024_1086(report)
     check_azure_arc_windows(report)
     check_windows_cloud_filter(report)
     check_bitlocker_winre(report)

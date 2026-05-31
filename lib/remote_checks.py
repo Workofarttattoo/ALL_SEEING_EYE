@@ -437,6 +437,91 @@ def check_citrix_cve_2023_4966(target: Target, report: ScanReport) -> None:
             break
 
 
+def _parse_openssh_version(banner: str) -> tuple[int, int, str] | None:
+    """Return (major, minor, full) from OpenSSH banner or None."""
+    import re
+
+    match = re.search(r"OpenSSH[_-](\d+)\.(\d+)(p\d+)?", banner, re.I)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2)), match.group(0)
+
+
+def check_openssh_cve_2024_6387(target: Target, report: ScanReport) -> None:
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2024-6387 (regreSSHion)...{Colors.END}")
+    ip = target.resolve()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(5)
+    try:
+        sock.connect((ip, 22))
+        banner = sock.recv(256).decode("utf-8", errors="ignore").strip()
+    except OSError:
+        return
+    finally:
+        sock.close()
+
+    if "openssh" not in banner.lower():
+        return
+
+    parsed = _parse_openssh_version(banner)
+    print(f"{Colors.YELLOW}[*] SSH: {banner}{Colors.END}")
+    if not parsed:
+        return
+
+    major, minor, full = parsed
+    # Vulnerable range approximation: OpenSSH before 9.8p2 regreSSHion advisory
+    vulnerable = (major, minor) < (9, 8) or (major == 9 and minor == 8 and "p1" in full.lower())
+    if vulnerable:
+        report.add(
+            Finding(
+                cve="CVE-2024-6387",
+                confidence="MEDIUM",
+                notes=f"OpenSSH {full} may be in regreSSHion range — verify patch level",
+                port=22,
+                banner=banner,
+            )
+        )
+
+
+def check_tomcat_cve_2025_22876(target: Target, report: ScanReport) -> None:
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2025-22876 (Tomcat path traversal)...{Colors.END}")
+    session = requests.Session()
+    for path in ("/manager/html", "/host-manager/html", "/docs/"):
+        url = target.url(path)
+        response = _get(session, url, timeout=10)
+        if not response:
+            continue
+        if "tomcat" in response.text.lower() or "manager app" in response.text.lower():
+            print(f"{Colors.RED}[!] Apache Tomcat manager surface: {path}{Colors.END}")
+            report.add(
+                Finding(
+                    cve="CVE-2025-22876",
+                    confidence="HIGH",
+                    notes="Tomcat detected — verify manager auth and version; path traversal in affected builds",
+                    url=url,
+                )
+            )
+            break
+
+
+def check_goaccess_cve_2024_47699(target: Target, report: ScanReport) -> None:
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2024-47699 (GoAccess SSRF surface)...{Colors.END}")
+    session = requests.Session()
+    for path in ("/", "/report.html", "/goaccess"):
+        url = target.url(path)
+        response = _get(session, url, timeout=8)
+        if response and "goaccess" in response.text.lower():
+            report.add(
+                Finding(
+                    cve="CVE-2024-47699",
+                    confidence="MEDIUM",
+                    notes="GoAccess detected — verify SSRF patch on report generation",
+                    url=url,
+                )
+            )
+            break
+
+
 REMOTE_CHECKS: list[tuple[str, CheckFn]] = [
     ("core", check_sap_cve_2025_31324),
     ("core", check_react_nextjs),
@@ -445,6 +530,7 @@ REMOTE_CHECKS: list[tuple[str, CheckFn]] = [
     ("core", check_metinfo),
     ("core", check_showdoc),
     ("core", check_erlang_ssh),
+    ("core", check_openssh_cve_2024_6387),
     ("core", check_cisco_rest),
     ("core", check_adobe_vectors),
     ("core", check_flowise),
@@ -455,6 +541,8 @@ REMOTE_CHECKS: list[tuple[str, CheckFn]] = [
     ("extended", check_owncloud_cve_2023_49103),
     ("extended", check_mobileiron_cve_2023_35078),
     ("extended", check_citrix_cve_2023_4966),
+    ("extended", check_tomcat_cve_2025_22876),
+    ("extended", check_goaccess_cve_2024_47699),
 ]
 
 

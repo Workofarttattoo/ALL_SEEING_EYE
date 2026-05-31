@@ -15,7 +15,8 @@
         "python3 ase.py shodan host|domain|hunt|dorks",
         "python3 ase.py playbook blue|red|purple|advanced",
         "python3 ase.py aura <target>",
-        "python3 ase.py handbook purple"
+        "python3 ase.py network <target> [--skip-external]",
+        "python3 ase.py handbook purple|network"
       ],
       "blue_detection": "CLI itself not detectable; watch for spawned child processes",
       "purple_loop": "Loop 3 capstone orchestrator"
@@ -140,6 +141,40 @@
       ],
       "blue_detection": "Web probe rules for Oracle/Cisco/n8n paths",
       "purple_loop": "Loop 2–3"
+    },
+    {
+      "name": "network_recon.py",
+      "path": "tools/network_recon.py",
+      "type": "python",
+      "attack_phases": ["reconnaissance", "discovery"],
+      "purpose": "2026 network recon orchestrator — tlsx/nuclei + ASE autorecon pipeline",
+      "key_commands": [
+        "python3 ase.py network target.com",
+        "python3 ase.py network --targets urls.txt --aggressive --shodan",
+        "python3 tools/network_recon.py target.com --skip-external"
+      ],
+      "network_signatures": [
+        "tlsx JSON TLS/QUIC fingerprint on target list",
+        "nuclei misconfig/exposure templates",
+        "ASE autorecon CVE probes per target"
+      ],
+      "blue_detection": "Sigma ase-purple-004; tlsx/nuclei user-agent and template signatures",
+      "sigma_rule": "purple/detection/sigma/cve_recon_web_probe.yml",
+      "purple_loop": "Loop 2–3",
+      "playbook": "docs/NETWORK_2026_GUIDE.md"
+    },
+    {
+      "name": "install-recon-tools.sh",
+      "path": "scripts/install-recon-tools.sh",
+      "type": "bash",
+      "attack_phases": ["preparation"],
+      "purpose": "Install optional ProjectDiscovery recon stack (tlsx, nuclei, katana) and bpftrace",
+      "key_commands": [
+        "bash scripts/install-recon-tools.sh"
+      ],
+      "network_signatures": ["No target traffic — local go install only"],
+      "blue_detection": "N/A — operator workstation setup",
+      "purple_loop": "Loop 1 prep"
     }
   ],
   "detection_assets": [
@@ -212,8 +247,16 @@
       "mitre": "T1055.012",
       "phase": "defense_evasion",
       "detects": "GHOST-class process hollowing"
+    },
+    {
+      "name": "doh_exfil_pattern",
+      "path": "purple/detection/sigma/doh_exfil_pattern.yml",
+      "mitre": "T1048",
+      "phase": "exfiltration",
+      "detects": "DNS-over-HTTPS encoded subdomain exfiltration"
     }
   ],
   "ttp_reference": "docs/ttps/POST_EXPLOIT_TTP_REFERENCE.md",
-  "advanced_playbook": "docs/RED_TEAM_ADVANCED_PLAYBOOK.md"
+  "advanced_playbook": "docs/RED_TEAM_ADVANCED_PLAYBOOK.md",
+  "network_guide": "docs/NETWORK_2026_GUIDE.md"
 }
