@@ -98,6 +98,8 @@ See [docs/RED_TEAM_HANDBOOK.md](docs/RED_TEAM_HANDBOOK.md) for the full handbook
 |----------|---------|------|
 | Blue Team | `python3 ase.py playbook blue` | Defend against expected red team TTPs |
 | Red Team | `python3 ase.py playbook red` | Run authorized engagement when you flip sides |
+| Red Advanced | `python3 ase.py playbook advanced` | AURA recon + CVE TTP reference |
+| AURA recon | `python3 ase.py aura example.com` | Subdomain + port + CVE pipeline |
 | Purple Team | `python3 ase.py playbook purple` | Joint attack/defense loops and scoring |
 | Purple Handbook | `python3 ase.py handbook purple` | Detection rules, hunting, IR, script index |
 | Script index | `python3 ase.py scripts` | All toolkit + detection assets in one list |

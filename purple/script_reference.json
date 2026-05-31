@@ -13,7 +13,8 @@
         "python3 ase.py mass targets.txt",
         "python3 ase.py rapid targets.txt",
         "python3 ase.py shodan host|domain|hunt|dorks",
-        "python3 ase.py playbook blue|red|purple",
+        "python3 ase.py playbook blue|red|purple|advanced",
+        "python3 ase.py aura <target>",
         "python3 ase.py handbook purple"
       ],
       "blue_detection": "CLI itself not detectable; watch for spawned child processes",
@@ -38,6 +39,27 @@
       "blue_detection": "Sigma ase-purple-004; port scan + multi-path web probe alerts",
       "sigma_rule": "purple/detection/sigma/cve_recon_web_probe.yml",
       "purple_loop": "Loop 3"
+    },
+    {
+      "name": "aura.py",
+      "path": "tools/aura.py",
+      "type": "python",
+      "attack_phases": ["reconnaissance", "discovery"],
+      "purpose": "AURA — subdomain enum, nmap ports, full CVE fingerprint pipeline",
+      "key_commands": [
+        "python3 tools/aura.py --target example.com",
+        "python3 ase.py aura example.com",
+        "python3 tools/aura.py --target example.com --skip-subdomains --ports 1-65535"
+      ],
+      "network_signatures": [
+        "DNS A-record lookups for subdomain wordlist",
+        "nmap -p scan per discovered host",
+        "Full extended remote_checks per host"
+      ],
+      "blue_detection": "Sigma ase-purple-004; DNS query volume; nmap scan pattern",
+      "sigma_rule": "purple/detection/sigma/cve_recon_web_probe.yml",
+      "purple_loop": "Loop 2-3",
+      "playbook": "docs/RED_TEAM_ADVANCED_PLAYBOOK.md"
     },
     {
       "name": "remote_scan.py",
@@ -169,6 +191,29 @@
       "name": "enable-windows-logging",
       "path": "purple/detection/scripts/enable-windows-logging.ps1",
       "phase": "preparation"
+    },
+    {
+      "name": "c2_beacon_pattern",
+      "path": "purple/detection/sigma/c2_beacon_pattern.yml",
+      "mitre": "T1071",
+      "phase": "command_and_control",
+      "detects": "PHANTOM-class C2 beacons"
+    },
+    {
+      "name": "wmi_persistence",
+      "path": "purple/detection/sigma/wmi_persistence.yml",
+      "mitre": "T1546.003",
+      "phase": "persistence",
+      "detects": "SHADOW-class WMI persistence"
+    },
+    {
+      "name": "process_hollowing_indicators",
+      "path": "purple/detection/sigma/process_hollowing_indicators.yml",
+      "mitre": "T1055.012",
+      "phase": "defense_evasion",
+      "detects": "GHOST-class process hollowing"
     }
-  ]
+  ],
+  "ttp_reference": "docs/ttps/POST_EXPLOIT_TTP_REFERENCE.md",
+  "advanced_playbook": "docs/RED_TEAM_ADVANCED_PLAYBOOK.md"
 }

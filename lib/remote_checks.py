@@ -376,6 +376,67 @@ def check_cisco_fmc(target: Target, report: ScanReport) -> None:
             break
 
 
+def check_owncloud_cve_2023_49103(target: Target, report: ScanReport) -> None:
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2023-49103 (ownCloud info disclosure)...{Colors.END}")
+    session = requests.Session()
+    status_url = target.url("/status.php")
+    response = _get(session, status_url)
+    if not response or "owncloud" not in response.text.lower():
+        return
+    print(f"{Colors.RED}[!] ownCloud detected{Colors.END}")
+    report.add(
+        Finding(
+            cve="CVE-2023-49103",
+            confidence="HIGH",
+            notes="ownCloud instance — verify graphapi patch; versions before 10.13.0 affected",
+            url=status_url,
+        )
+    )
+
+
+def check_mobileiron_cve_2023_35078(target: Target, report: ScanReport) -> None:
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2023-35078 (MobileIron API bypass)...{Colors.END}")
+    session = requests.Session()
+    for path in ("/mifs/.well-known/known-issues", "/mifs/c/i/a/login"):
+        url = target.url(path, use_https=True)
+        response = _get(session, url, timeout=10)
+        if response and response.status_code in (200, 401, 403):
+            haystack = (response.text + str(response.headers)).lower()
+            if "mobileiron" in haystack or "mifs" in haystack:
+                print(f"{Colors.RED}[!] MobileIron surface: {path}{Colors.END}")
+                report.add(
+                    Finding(
+                        cve="CVE-2023-35078",
+                        confidence="HIGH",
+                        notes="MobileIron Core/Connector — verify API auth bypass patch",
+                        url=url,
+                    )
+                )
+                break
+
+
+def check_citrix_cve_2023_4966(target: Target, report: ScanReport) -> None:
+    print(f"\n{Colors.CYAN}[*] Checking CVE-2023-4966 (Citrix Bleed)...{Colors.END}")
+    session = requests.Session()
+    for path in ("/vpn/index.html", "/oauth/idp/.well-known/openid-configuration"):
+        url = target.url(path, use_https=True)
+        response = _get(session, url, timeout=10)
+        if not response:
+            continue
+        haystack = response.text.lower()
+        if "netscaler" in haystack or "citrix" in haystack or "ns gateway" in haystack:
+            print(f"{Colors.RED}[!] Citrix NetScaler/Gateway detected{Colors.END}")
+            report.add(
+                Finding(
+                    cve="CVE-2023-4966",
+                    confidence="HIGH",
+                    notes="Citrix ADC/Gateway — verify Citrix Bleed patch (session token leak)",
+                    url=url,
+                )
+            )
+            break
+
+
 REMOTE_CHECKS: list[tuple[str, CheckFn]] = [
     ("core", check_sap_cve_2025_31324),
     ("core", check_react_nextjs),
@@ -391,6 +452,9 @@ REMOTE_CHECKS: list[tuple[str, CheckFn]] = [
     ("extended", check_n8n),
     ("extended", check_cisco_ise),
     ("extended", check_cisco_fmc),
+    ("extended", check_owncloud_cve_2023_49103),
+    ("extended", check_mobileiron_cve_2023_35078),
+    ("extended", check_citrix_cve_2023_4966),
 ]
 
 

@@ -1,0 +1,24 @@
+title: Process Hollowing Indicators
+id: ase-purple-007
+status: experimental
+description: Detects process creation suspended then resumed with mismatched image (GHOST-class evasion)
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith:
+      - '\powershell.exe'
+      - '\cmd.exe'
+    Image|endswith:
+      - '\svchost.exe'
+      - '\RuntimeBroker.exe'
+      - '\dllhost.exe'
+  condition: selection
+falsepositives:
+  - Rare legitimate tooling
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1055.012

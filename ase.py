@@ -35,6 +35,7 @@ PLAYBOOKS = {
     "blue": DOCS / "BLUE_TEAM_PLAYBOOK.md",
     "red": DOCS / "RED_TEAM_PLAYBOOK.md",
     "purple": DOCS / "PURPLE_TEAM_PLAYBOOK.md",
+    "advanced": DOCS / "RED_TEAM_ADVANCED_PLAYBOOK.md",
 }
 
 HANDBOOKS = {
@@ -46,10 +47,21 @@ PURPLE_ROOT = ROOT / "purple"
 SCRIPT_REFERENCE = PURPLE_ROOT / "script_reference.json"
 
 
+def cmd_aura(args: argparse.Namespace) -> int:
+    extra = ["--target", args.target, "--output-dir", args.output_dir]
+    if args.skip_subdomains:
+        extra.append("--skip-subdomains")
+    if args.wordlist:
+        extra.extend(["--wordlist", args.wordlist])
+    if args.ports:
+        extra.extend(["--ports", args.ports])
+    return _run_tool("aura.py", extra)
+
+
 def cmd_playbook(args: argparse.Namespace) -> int:
     path = PLAYBOOKS.get(args.team)
     if not path or not path.exists():
-        print(f"Unknown playbook: {args.team}. Choose: blue, red, purple")
+        print(f"Unknown playbook: {args.team}. Choose: blue, red, purple, advanced")
         return 1
     print(path.read_text())
     return 0
@@ -179,10 +191,18 @@ def build_parser() -> argparse.ArgumentParser:
     playbook = sub.add_parser("playbook", help="Print blue, red, or purple team playbook")
     playbook.add_argument(
         "team",
-        choices=["blue", "red", "purple"],
+        choices=["blue", "red", "purple", "advanced"],
         help="Which playbook to display",
     )
     playbook.set_defaults(func=cmd_playbook)
+
+    aura = sub.add_parser("aura", help="AURA unified recon (subdomains + ports + CVE scan)")
+    aura.add_argument("target", help="Base domain or host")
+    aura.add_argument("--wordlist", help="Subdomain wordlist path")
+    aura.add_argument("--ports", default="1-1000", help="nmap port range")
+    aura.add_argument("--skip-subdomains", action="store_true")
+    aura.add_argument("--output-dir", default="reports/aura")
+    aura.set_defaults(func=cmd_aura)
 
     list_cves = sub.add_parser("cves", help="List tracked CVEs")
     list_cves.add_argument(

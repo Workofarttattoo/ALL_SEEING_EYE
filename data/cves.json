@@ -151,6 +151,30 @@
       "status": "ACTIVE",
       "auth_required": false,
       "notes": "Java deserialization RCE"
+    },
+    {
+      "id": "CVE-2023-49103",
+      "target": "ownCloud graphapi",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Information disclosure via graphapi ProxyTest.php"
+    },
+    {
+      "id": "CVE-2023-35078",
+      "target": "MobileIron Core / Connector",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "API authentication bypass — unauthenticated API access"
+    },
+    {
+      "id": "CVE-2023-4966",
+      "target": "Citrix NetScaler ADC / Gateway",
+      "cvss": 9.4,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Citrix Bleed — sensitive session information disclosure"
     }
   ],
   "local": [
