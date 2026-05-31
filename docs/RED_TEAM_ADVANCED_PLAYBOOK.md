@@ -197,11 +197,26 @@ Behavioral reference:
 
 ## 5. Evasion TTPs (GHOST class)
 
-**GHOST** describes sandbox/debugger detection, sleep-skipping, XOR shellcode, process hollowing, and remote thread injection.
+**GHOST** describes sandbox/debugger detection, sleep-skipping, XOR/polymorphic shellcode, process hollowing, and remote thread injection.
+
+This repo does **not** ship `ghost.py` or any deployable evasion/injection code. The CLI surface below is documented for **purple team detection mapping** only.
 
 Behavioral reference:
 
 → [docs/ttps/POST_EXPLOIT_TTP_REFERENCE.md#ghost-evasion-class](ttps/POST_EXPLOIT_TTP_REFERENCE.md)
+
+### GHOST-class CLI → detection map (reference only)
+
+| Reference command | Red behavior (lab) | What blue should see |
+|-------------------|--------------------|----------------------|
+| `monitor` | Continuous env polling | Repeated reads of VM/debugger artifacts |
+| `check_sandbox` | VM file/registry probes | T1497 — VBox/VMware path access |
+| `check_debugger` | Debugger API calls | T1622 — debug object / early exit |
+| `check_analysis` | Analyst tool process enum | Unusual process enumeration |
+| `encrypt_shellcode` | XOR/AES payload prep | High-entropy RX memory (EDR) |
+| `polymorphic_shellcode` | Junk-byte mutation | T1027.002 — entropy / YARA |
+| `process_hollowing` | Suspend → inject → resume | `process_hollowing_indicators.yml` |
+| `thread_injection` | Remote thread in target PID | `suspicious_process_injection.yml`, Sysmon 8 |
 
 ### Detection rules
 
@@ -210,6 +225,7 @@ Behavioral reference:
 | Process hollowing | `process_hollowing_indicators.yml` |
 | Thread injection | `suspicious_process_injection.yml` |
 | AMSI bypass | PowerShell 4104 script block anomalies |
+| Sandbox evasion | Correlate T1497 reads + subsequent injection |
 
 ### Defensive baseline
 
@@ -223,7 +239,17 @@ sysmon -accepteula -i purple\detection\sysmon\sysmon-detection.xml
 ```powershell
 powershell -File purple/detection/hunting/hunt-powershell-obfuscation.ps1
 powershell -File purple/detection/hunting/hunt-suspicious-network.ps1
+powershell -File purple/detection/hunting/hunt-unusual-parent-child.ps1
 ```
+
+### Purple pro tips (detection validation)
+
+1. **Fingerprint before claim** — run `ase scan --aggressive` and manual curl before asserting CVE exposure in reports.
+2. **Non-standard C2 ports** — blue should monitor 8443, 5353, high ephemeral outbound (not just 4444).
+3. **Obfuscation** — hunt for `pyarmor`, `Cython` artifacts and unsigned Python bundles; do not deploy obfuscated implants from this repo.
+4. **Memory vs disk** — prioritize Sysmon 1/8/10 and EDR memory scans over file-only AV.
+5. **Time-based evasion** — purple sandboxes should allow ≥300s dwell before verdict; correlate sleep + network.
+6. **Kill chain mapping** — log each TTP in `exercise/ioc_log.json` and `exercise/detection_matrix.csv`.
 
 ---
 
@@ -233,11 +259,46 @@ powershell -File purple/detection/hunting/hunt-suspicious-network.ps1
 
 | Problem | Fix |
 |---------|-----|
+| Port scan empty / blocked | Run with appropriate scope approval; verify `which nmap`; try `ase scan` (Python sockets) or Shodan host history |
 | No subdomains found | Expand `data/wordlists/subdomains.txt`; try Shodan DNS |
 | nmap not found | `apt install nmap` or use `--skip-subdomains` + `ase scan` |
-| All ports filtered | Target behind WAF/CDN — use Shodan host history |
+| All ports filtered | Target behind WAF/CDN — use Shodan; prefer `tlsx` via `ase network` over SYN scans |
 | False positive CVE hits | Confirm with manual curl; check version in banner |
 | Rate limited | Reduce `--workers`; add sleep between hosts |
+| Corporate proxy blocks outbound | Set `http_proxy` / `https_proxy` before Shodan or curl checks |
+
+### CVE fingerprint issues (not exploit tuning)
+
+| Problem | Fix |
+|---------|-----|
+| ownCloud / graphapi inconclusive | `curl -sk https://TARGET/status.php`; confirm version ≥10.13.0; block graphapi at WAF |
+| MobileIron `/mifs/` returns 401/403 | Scan 443, 8443, 9090 with `ase scan`; may be patched or allowlisted — document as hardened |
+| Citrix `/vpn/` present but no advisory match | Compare build to Citrix bulletin; rotate sessions if historically vulnerable |
+| Exploit PoC fails in lab | **Out of scope** — use Metasploit/vendor PoC under ROE; this repo fingerprints only |
+
+### PHANTOM-class C2 (detection validation)
+
+| Problem | Fix |
+|---------|-----|
+| Licensed C2 beacons, no SIEM alert | Import `c2_beacon_pattern.yml`; confirm NetFlow/EDR retention ≥24h |
+| Large payload sessions dropped | Blue: check MTU/VPN fragmentation logs — not an implant config guide |
+| JSON/metadata beacons missed | Hunt long-lived `python.exe` / unusual interpreters with periodic outbound TCP |
+
+### SHADOW-class persistence (cleanup & detection)
+
+| Problem | Fix |
+|---------|-----|
+| Persistence rule missed on Linux server | Hunt `systemd` units, `/etc/cron*`, `@reboot` — headless hosts skip desktop autostart |
+| WMI subscription not logged | Enable Sysmon 19–21; deploy `wmi_persistence.yml` |
+| Post-exercise artifacts remain | Red: document all methods in `exercise/ioc_log.json`; Blue: verify removal per checklist in §4 |
+
+### GHOST-class evasion (detection tuning)
+
+| Problem | Fix |
+|---------|-----|
+| VM detection rule false positive | Physical host with VMware/Hyper-V installed — tune T1497 correlation; require hollow/inject sibling alert |
+| Injection rule missed | Confirm Sysmon 8/10; run `hunt-unusual-parent-child.ps1` in lab |
+| Sandbox-only verdict | Extend purple dwell time; GHOST-class sleep evasion defeats <120s sandboxes |
 
 ### Shodan integration
 
@@ -255,29 +316,50 @@ powershell -File purple/detection/hunting/hunt-suspicious-network.ps1
 | Beacon rule noisy | Exclude known monitoring IPs |
 | Persistence rule missed | Enable Sysmon registry + WMI channels |
 
-### Reporting
+### Reporting & exercise hygiene
 
-All tools write JSON to `reports/`:
+All **recon** tools write JSON to `reports/` (not `~/.redteam/logs/` — that path is reference-only for third-party implants):
 
 ```bash
 ls reports/aura/
 ls reports/recon_*
+ls reports/network/
 python3 ase.py scripts   # verify which tool produced which artifact
 ```
+
+Post-engagement: archive `exercise/ioc_log.json` and confirm persistence cleanup before leaving scope.
 
 ---
 
 ## Script quick reference
 
-| Tool | Path | Command |
-|------|------|---------|
-| AURA | `tools/aura.py` | `python3 ase.py aura example.com` |
-| Autorecon | `tools/autorecon.py` | `python3 ase.py scan TARGET --shodan` |
-| Mass scan | `scripts/mass_scan.sh` | `python3 ase.py mass targets.txt` |
-| Shodan | `tools/shodan_recon.py` | `python3 ase.py shodan host TARGET` |
-| Local | `tools/local_detect.py` | `python3 ase.py local` |
+| Tool | Path | Command | Detection risk |
+|------|------|---------|----------------|
+| AURA | `tools/aura.py` | `python3 ase.py aura example.com` | Low |
+| Autorecon | `tools/autorecon.py` | `python3 ase.py scan TARGET --shodan` | Low–Medium |
+| Network 2026 | `tools/network_recon.py` | `python3 ase.py network TARGET` | Low |
+| Mass scan | `scripts/mass_scan.sh` | `python3 ase.py mass targets.txt` | Medium |
+| Shodan | `tools/shodan_recon.py` | `python3 ase.py shodan host TARGET` | Low (passive) |
+| Local | `tools/local_detect.py` | `python3 ase.py local` | N/A (host-only) |
+
+**Reference classes (not shipped — detection only):**
+
+| Class | MITRE | Sigma / hunt |
+|-------|-------|--------------|
+| PHANTOM-class C2 | T1071 | `c2_beacon_pattern.yml` |
+| SHADOW-class persistence | T1547 | `registry_run_key_persistence.yml`, `wmi_persistence.yml` |
+| GHOST-class evasion | T1055, T1027 | `process_hollowing_indicators.yml`, `suspicious_process_injection.yml` |
 
 Full index: `purple/script_reference.json` or `python3 ase.py scripts`
+
+### Dependencies (this repo only)
+
+```bash
+pip install -r requirements.txt
+bash scripts/install-recon-tools.sh   # optional: tlsx, nuclei, katana
+```
+
+Third-party implant deps (`pyautogui`, `paramiko`, `pywin32`, `lief`, etc.) apply to **licensed C2/lab tooling outside this repo** — not included in `requirements.txt`.
 
 ---
 
