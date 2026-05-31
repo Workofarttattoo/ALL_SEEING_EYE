@@ -1,0 +1,24 @@
+title: Suspicious Process Access for Injection
+id: ase-purple-002
+status: experimental
+description: Detects process access patterns indicative of injection
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: process_access
+  product: windows
+detection:
+  selection:
+    GrantedAccess:
+      - '0x1010'
+      - '0x1F0FFF'
+    CallTrace|contains:
+      - 'kernel32.dll!OpenProcess'
+      - 'kernel32.dll!VirtualAllocEx'
+      - 'kernel32.dll!WriteProcessMemory'
+  condition: selection
+falsepositives:
+  - Legitimate debugging tools
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1055

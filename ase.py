@@ -15,8 +15,15 @@ DOCS = ROOT / "docs"
 DATA = ROOT / "data"
 
 
-def cmd_handbook(_: argparse.Namespace) -> int:
-    handbook = DOCS / "RED_TEAM_HANDBOOK.md"
+def cmd_handbook(args: argparse.Namespace) -> int:
+    if getattr(args, "name", None):
+        path = HANDBOOKS.get(args.name)
+        if not path or not path.exists():
+            print(f"Unknown handbook: {args.name}. Choose: red, purple")
+            return 1
+        print(path.read_text())
+        return 0
+    handbook = HANDBOOKS["red"]
     if not handbook.exists():
         print(f"Handbook not found at {handbook}")
         return 1
@@ -30,6 +37,14 @@ PLAYBOOKS = {
     "purple": DOCS / "PURPLE_TEAM_PLAYBOOK.md",
 }
 
+HANDBOOKS = {
+    "red": DOCS / "RED_TEAM_HANDBOOK.md",
+    "purple": DOCS / "PURPLE_TEAM_HANDBOOK.md",
+}
+
+PURPLE_ROOT = ROOT / "purple"
+SCRIPT_REFERENCE = PURPLE_ROOT / "script_reference.json"
+
 
 def cmd_playbook(args: argparse.Namespace) -> int:
     path = PLAYBOOKS.get(args.team)
@@ -37,6 +52,34 @@ def cmd_playbook(args: argparse.Namespace) -> int:
         print(f"Unknown playbook: {args.team}. Choose: blue, red, purple")
         return 1
     print(path.read_text())
+    return 0
+
+
+def cmd_scripts(args: argparse.Namespace) -> int:
+    if not SCRIPT_REFERENCE.exists():
+        print(f"Script reference not found: {SCRIPT_REFERENCE}")
+        return 1
+    ref = json.loads(SCRIPT_REFERENCE.read_text())
+
+    if args.detection:
+        print(f"{'NAME':<35} {'PHASE':<20} PATH")
+        print("-" * 90)
+        for item in ref.get("detection_assets", []):
+            print(f"{item['name']:<35} {item.get('phase', ''):<20} {item['path']}")
+        return 0
+
+    phase_filter = args.phase
+    print(f"{'SCRIPT':<18} {'PHASE(S)':<25} PATH")
+    print("-" * 90)
+    for item in ref.get("toolkit_scripts", []):
+        phases = ", ".join(item.get("attack_phases", []))
+        if phase_filter and phase_filter not in phases:
+            continue
+        print(f"{item['name']:<18} {phases:<25} {item['path']}")
+        for cmd in item.get("key_commands", [])[:2]:
+            print(f"  → {cmd}")
+    print(f"\nDetection assets: {len(ref.get('detection_assets', []))} — use: ase scripts --detection")
+    print(f"Full index: {SCRIPT_REFERENCE}")
     return 0
 
 
@@ -116,8 +159,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    handbook = sub.add_parser("handbook", help="Print the red team handbook")
+    handbook = sub.add_parser("handbook", help="Print red or purple team handbook")
+    handbook.add_argument(
+        "name",
+        nargs="?",
+        choices=["red", "purple"],
+        help="Handbook to display (default: red CVE handbook)",
+    )
     handbook.set_defaults(func=cmd_handbook)
+
+    scripts = sub.add_parser("scripts", help="List toolkit scripts and detection assets")
+    scripts.add_argument("--detection", action="store_true", help="Show detection rules only")
+    scripts.add_argument(
+        "--phase",
+        help="Filter toolkit scripts by attack phase (e.g. reconnaissance)",
+    )
+    scripts.set_defaults(func=cmd_scripts)
 
     playbook = sub.add_parser("playbook", help="Print blue, red, or purple team playbook")
     playbook.add_argument(

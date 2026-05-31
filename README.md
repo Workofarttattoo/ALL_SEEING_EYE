@@ -67,9 +67,10 @@ See [docs/SHODAN.md](docs/SHODAN.md) for the full data model, credit tips, and w
 ├── ase.py              # Unified CLI
 ├── data/cves.json      # CVE catalog (remote + local)
 ├── data/shodan_dorks.json  # CVE → Shodan filter mappings
-├── docs/               # Red team handbook
+├── docs/               # Handbooks and playbooks (blue/red/purple)
+├── purple/detection/   # Sigma rules, hunting scripts, Sysmon config
 ├── lib/                # Detection modules
-├── tools/              # autorecon, local_detect, remote_scan
+├── tools/              # autorecon, local_detect, remote_scan, shodan_recon
 ├── scripts/            # Bash bulk scanners
 └── reports/            # JSON output (generated)
 ```
@@ -98,3 +99,5 @@ See [docs/RED_TEAM_HANDBOOK.md](docs/RED_TEAM_HANDBOOK.md) for the full handbook
 | Blue Team | `python3 ase.py playbook blue` | Defend against expected red team TTPs |
 | Red Team | `python3 ase.py playbook red` | Run authorized engagement when you flip sides |
 | Purple Team | `python3 ase.py playbook purple` | Joint attack/defense loops and scoring |
+| Purple Handbook | `python3 ase.py handbook purple` | Detection rules, hunting, IR, script index |
+| Script index | `python3 ase.py scripts` | All toolkit + detection assets in one list |

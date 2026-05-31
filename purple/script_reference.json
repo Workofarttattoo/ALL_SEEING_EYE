@@ -1,0 +1,174 @@
+{
+  "toolkit_scripts": [
+    {
+      "name": "ase.py",
+      "path": "ase.py",
+      "type": "cli",
+      "attack_phases": ["reconnaissance", "discovery"],
+      "purpose": "Unified CLI entry point for all ALL_SEEING_EYE operations",
+      "key_commands": [
+        "python3 ase.py scan <target> [--aggressive] [--shodan]",
+        "python3 ase.py remote <target>",
+        "python3 ase.py local",
+        "python3 ase.py mass targets.txt",
+        "python3 ase.py rapid targets.txt",
+        "python3 ase.py shodan host|domain|hunt|dorks",
+        "python3 ase.py playbook blue|red|purple",
+        "python3 ase.py handbook purple"
+      ],
+      "blue_detection": "CLI itself not detectable; watch for spawned child processes",
+      "purple_loop": "Loop 3 capstone orchestrator"
+    },
+    {
+      "name": "autorecon.py",
+      "path": "tools/autorecon.py",
+      "type": "python",
+      "attack_phases": ["reconnaissance", "discovery"],
+      "purpose": "All-in-one CVE fingerprint scanner with port scan and JSON reporting",
+      "key_commands": [
+        "python3 tools/autorecon.py https://target.com",
+        "python3 tools/autorecon.py target.com --aggressive",
+        "python3 tools/autorecon.py target.com --shodan",
+        "python3 tools/autorecon.py --local"
+      ],
+      "network_signatures": [
+        "SYN to ports 21,22,23,25,53,80,443,3306,3389,5432,6379,8080,8443,27017,50000",
+        "HTTP GET to CVE fingerprint paths within 60s"
+      ],
+      "blue_detection": "Sigma ase-purple-004; port scan + multi-path web probe alerts",
+      "sigma_rule": "purple/detection/sigma/cve_recon_web_probe.yml",
+      "purple_loop": "Loop 3"
+    },
+    {
+      "name": "remote_scan.py",
+      "path": "tools/remote_scan.py",
+      "type": "python",
+      "attack_phases": ["reconnaissance"],
+      "purpose": "Remote-only CVE fingerprinting without local checks",
+      "key_commands": [
+        "python3 tools/remote_scan.py target.com",
+        "python3 tools/remote_scan.py target.com --core-only"
+      ],
+      "blue_detection": "Same as autorecon web probes",
+      "purple_loop": "Loop 2–3"
+    },
+    {
+      "name": "local_detect.py",
+      "path": "tools/local_detect.py",
+      "type": "python",
+      "attack_phases": ["discovery", "privilege_escalation"],
+      "purpose": "Local system CVE indicator scan (kernel, Azure Arc, BitLocker, Cloud Filter)",
+      "key_commands": [
+        "python3 tools/local_detect.py",
+        "python3 ase.py local"
+      ],
+      "host_signatures": [
+        "PowerShell Get-BitLockerVolume",
+        "Reads AzureConnectedMachineAgent paths",
+        "uname -r kernel version check"
+      ],
+      "blue_detection": "EDR process lineage; suspicious recon from non-admin user",
+      "purple_loop": "Loop 7"
+    },
+    {
+      "name": "shodan_recon.py",
+      "path": "tools/shodan_recon.py",
+      "type": "python",
+      "attack_phases": ["reconnaissance"],
+      "purpose": "Passive Shodan host lookup, DNS intel, CVE dork hunting",
+      "key_commands": [
+        "python3 tools/shodan_recon.py dorks",
+        "python3 tools/shodan_recon.py host target.com",
+        "python3 tools/shodan_recon.py domain target.com",
+        "python3 tools/shodan_recon.py hunt --count-only",
+        "python3 tools/shodan_recon.py hunt --cve CVE-2025-53521 --org \"Target Corp\"",
+        "python3 tools/shodan_recon.py search 'product:MongoDB' --count-only"
+      ],
+      "network_signatures": ["Outbound HTTPS to api.shodan.io only — passive to target"],
+      "blue_detection": "Not directly visible; validate Shodan org footprint weekly",
+      "purple_loop": "Loop 1"
+    },
+    {
+      "name": "mass_scan.sh",
+      "path": "scripts/mass_scan.sh",
+      "type": "bash",
+      "attack_phases": ["reconnaissance", "discovery"],
+      "purpose": "Bulk CVE fingerprint via curl + optional autorecon JSON per target",
+      "key_commands": [
+        "bash scripts/mass_scan.sh targets.txt"
+      ],
+      "network_signatures": [
+        "curl -sk to SAP, F5, MetInfo, ShowDoc, Next.js, Flowise, n8n paths",
+        "bash /dev/tcp port checks on 27017 and 22"
+      ],
+      "blue_detection": "Sigma ase-purple-004; same-source multi-CVE path hits in 120s",
+      "purple_loop": "Loop 2"
+    },
+    {
+      "name": "rapid_scan.sh",
+      "path": "scripts/rapid_scan.sh",
+      "type": "bash",
+      "attack_phases": ["reconnaissance"],
+      "purpose": "Extended remote CVE identification (Oracle IEM, n8n, Cisco ISE/FMC)",
+      "key_commands": [
+        "bash scripts/rapid_scan.sh targets.txt"
+      ],
+      "network_signatures": [
+        "curl to /oim/faces/, /healthz, /admin/, /api/fmc_config/"
+      ],
+      "blue_detection": "Web probe rules for Oracle/Cisco/n8n paths",
+      "purple_loop": "Loop 2–3"
+    }
+  ],
+  "detection_assets": [
+    {
+      "name": "registry_run_key_persistence",
+      "path": "purple/detection/sigma/registry_run_key_persistence.yml",
+      "mitre": "T1547.001",
+      "phase": "persistence"
+    },
+    {
+      "name": "suspicious_process_injection",
+      "path": "purple/detection/sigma/suspicious_process_injection.yml",
+      "mitre": "T1055",
+      "phase": "defense_evasion"
+    },
+    {
+      "name": "lsass_memory_access",
+      "path": "purple/detection/sigma/lsass_memory_access.yml",
+      "mitre": "T1003.001",
+      "phase": "credential_access"
+    },
+    {
+      "name": "cve_recon_web_probe",
+      "path": "purple/detection/sigma/cve_recon_web_probe.yml",
+      "mitre": "T1595",
+      "phase": "reconnaissance"
+    },
+    {
+      "name": "hunt-powershell-obfuscation",
+      "path": "purple/detection/hunting/hunt-powershell-obfuscation.ps1",
+      "phase": "execution"
+    },
+    {
+      "name": "hunt-suspicious-network",
+      "path": "purple/detection/hunting/hunt-suspicious-network.ps1",
+      "phase": "command_and_control"
+    },
+    {
+      "name": "hunt-unusual-parent-child",
+      "path": "purple/detection/hunting/hunt-unusual-parent-child.ps1",
+      "phase": "execution"
+    },
+    {
+      "name": "sysmon-detection",
+      "path": "purple/detection/sysmon/sysmon-detection.xml",
+      "phase": "all"
+    },
+    {
+      "name": "enable-windows-logging",
+      "path": "purple/detection/scripts/enable-windows-logging.ps1",
+      "phase": "preparation"
+    }
+  ]
+}

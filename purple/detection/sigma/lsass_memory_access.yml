@@ -1,0 +1,30 @@
+title: LSASS Memory Access
+id: ase-purple-003
+status: stable
+description: Detects suspicious access to LSASS process
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: process_access
+  product: windows
+detection:
+  target_process:
+    TargetImage|endswith: '\lsass.exe'
+  granted_access:
+    GrantedAccess|contains:
+      - '0x1010'
+      - '0x1410'
+      - '0x143a'
+      - '0x1430'
+      - '0x100000'
+  filter_legitimate:
+    SourceImage|endswith:
+      - '\svchost.exe'
+      - '\taskmgr.exe'
+      - '\services.exe'
+  condition: target_process and granted_access and not filter_legitimate
+falsepositives:
+  - Security products scanning LSASS
+level: critical
+tags:
+  - attack.credential_access
+  - attack.t1003.001

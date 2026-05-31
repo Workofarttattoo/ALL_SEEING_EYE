@@ -343,10 +343,13 @@ print(f'Reports generated: {len(reports)}')
 | [RED_TEAM_PLAYBOOK.md](RED_TEAM_PLAYBOOK.md) | You are red — full engagement |
 | [BLUE_TEAM_PLAYBOOK.md](BLUE_TEAM_PLAYBOOK.md) | You are blue — defend & detect |
 | [PURPLE_TEAM_PLAYBOOK.md](PURPLE_TEAM_PLAYBOOK.md) | You are facilitating — this doc |
+| [PURPLE_TEAM_HANDBOOK.md](PURPLE_TEAM_HANDBOOK.md) | Detection rules, hunting, IR, script index |
 | [SHODAN.md](SHODAN.md) | Passive intel for all teams |
 
 ```bash
 python3 ase.py playbook blue
 python3 ase.py playbook red
 python3 ase.py playbook purple
+python3 ase.py handbook purple
+python3 ase.py scripts
 ```
