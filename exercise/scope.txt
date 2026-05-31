@@ -1,0 +1,4 @@
+# Purple team exercise scope — one target per line (hostname or URL)
+# Example:
+# target.example.com
+# https://app.target.example.com

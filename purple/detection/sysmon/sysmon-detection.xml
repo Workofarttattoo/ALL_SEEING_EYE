@@ -1,0 +1,54 @@
+<Sysmon schemaversion="4.90">
+  <HashAlgorithms>sha256,IMPHASH</HashAlgorithms>
+  <EventFiltering>
+
+    <RuleGroup name="Process Creation" groupRelation="or">
+      <ProcessCreate onmatch="include">
+        <Rule groupRelation="or">
+          <Image condition="end with">.exe</Image>
+          <Image condition="end with">.dll</Image>
+          <Image condition="end with">.ps1</Image>
+          <Image condition="end with">.bat</Image>
+          <Image condition="end with">.cmd</Image>
+        </Rule>
+      </ProcessCreate>
+    </RuleGroup>
+
+    <RuleGroup name="Network Connections" groupRelation="or">
+      <NetworkConnect onmatch="include">
+        <Image condition="end with">powershell.exe</Image>
+        <Image condition="end with">cmd.exe</Image>
+        <Image condition="end with">wscript.exe</Image>
+        <Image condition="end with">cscript.exe</Image>
+        <Image condition="end with">mshta.exe</Image>
+        <Image condition="end with">rundll32.exe</Image>
+        <Image condition="end with">regsvr32.exe</Image>
+      </NetworkConnect>
+    </RuleGroup>
+
+    <RuleGroup name="Process Access" groupRelation="or">
+      <ProcessAccess onmatch="include">
+        <TargetImage condition="end with">lsass.exe</TargetImage>
+        <GrantedAccess condition="contains any">0x1010;0x1410;0x143a;0x1430</GrantedAccess>
+      </ProcessAccess>
+    </RuleGroup>
+
+    <RuleGroup name="Registry Events" groupRelation="or">
+      <RegistryEvent onmatch="include">
+        <TargetObject condition="contains">Windows\CurrentVersion\Run</TargetObject>
+        <TargetObject condition="contains">Windows\CurrentVersion\RunOnce</TargetObject>
+        <TargetObject condition="contains">UserInitMprLogonScript</TargetObject>
+      </RegistryEvent>
+    </RuleGroup>
+
+    <RuleGroup name="File Creation" groupRelation="or">
+      <FileCreate onmatch="include">
+        <TargetFilename condition="contains">\Downloads\</TargetFilename>
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="end with">.dll</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+      </FileCreate>
+    </RuleGroup>
+
+  </EventFiltering>
+</Sysmon>

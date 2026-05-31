@@ -1,0 +1,8 @@
+reports/
+scan_results_*/
+remote_scan_*/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env

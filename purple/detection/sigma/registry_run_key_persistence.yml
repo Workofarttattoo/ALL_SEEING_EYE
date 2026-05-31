@@ -1,0 +1,26 @@
+title: Registry Run Key Persistence
+id: ase-purple-001
+status: stable
+description: Detects suspicious registry modifications for persistence
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: registry_event
+  product: windows
+detection:
+  selection:
+    EventType: SetValue
+    TargetObject|contains:
+      - '\Software\Microsoft\Windows\CurrentVersion\Run'
+      - '\Software\Microsoft\Windows\CurrentVersion\RunOnce'
+      - '\Software\Microsoft\Windows\CurrentVersion\RunOnceEx'
+  filter_legitimate:
+    Image|contains:
+      - 'C:\Windows\'
+      - 'C:\Program Files\'
+  condition: selection and not filter_legitimate
+falsepositives:
+  - Legitimate software installations
+level: medium
+tags:
+  - attack.persistence
+  - attack.t1547.001

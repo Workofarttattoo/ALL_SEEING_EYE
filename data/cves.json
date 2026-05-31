@@ -1,0 +1,255 @@
+{
+  "remote": [
+    {
+      "id": "CVE-2025-31324",
+      "target": "SAP NetWeaver Visual Composer",
+      "cvss": 10.0,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Unauthenticated file upload leading to RCE"
+    },
+    {
+      "id": "CVE-2025-42999",
+      "target": "SAP NetWeaver",
+      "cvss": 9.9,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Related to CVE-2025-31324"
+    },
+    {
+      "id": "CVE-2025-32433",
+      "target": "Erlang SSH Library",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Pre-auth SSH RCE — verify banner and version"
+    },
+    {
+      "id": "CVE-2025-55182",
+      "target": "React / Next.js",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "React2Shell SSRF to RCE chain"
+    },
+    {
+      "id": "CVE-2025-66478",
+      "target": "Next.js",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Server-side exploitation"
+    },
+    {
+      "id": "CVE-2025-53521",
+      "target": "F5 BIG-IP",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "iControl REST RCE"
+    },
+    {
+      "id": "CVE-2026-29014",
+      "target": "MetInfo CMS 7.9-8.1",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "PHP code injection"
+    },
+    {
+      "id": "CVE-2026-20223",
+      "target": "Cisco REST API",
+      "cvss": 10.0,
+      "status": "CRITICAL",
+      "auth_required": false,
+      "notes": "Authentication bypass"
+    },
+    {
+      "id": "CVE-2025-14847",
+      "target": "MongoDB (MongoBleed)",
+      "cvss": 8.2,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Memory leak information disclosure"
+    },
+    {
+      "id": "CVE-2025-0520",
+      "target": "ShowDoc <2.8.7",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Actively exploited file upload RCE"
+    },
+    {
+      "id": "CVE-2026-34621",
+      "target": "Adobe Acrobat",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": true,
+      "notes": "Typically requires user to open malicious PDF"
+    },
+    {
+      "id": "CVE-2025-59528",
+      "target": "Flowise AI",
+      "cvss": 9.1,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "AI workflow framework RCE"
+    },
+    {
+      "id": "CVE-2026-21992",
+      "target": "Oracle Identity Manager",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Pre-auth RCE — CISA KEV"
+    },
+    {
+      "id": "CVE-2026-27577",
+      "target": "n8n Workflow",
+      "cvss": 9.4,
+      "status": "ACTIVE",
+      "auth_required": true,
+      "notes": "Expression sandbox escape"
+    },
+    {
+      "id": "CVE-2026-27493",
+      "target": "n8n Workflow",
+      "cvss": 9.5,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Unauthenticated forms RCE"
+    },
+    {
+      "id": "CVE-2026-21858",
+      "target": "n8n Workflow",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": true,
+      "notes": "Ni8mare RCE chain"
+    },
+    {
+      "id": "CVE-2026-45498",
+      "target": "Microsoft Defender",
+      "cvss": 8.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "DoS with potential code execution"
+    },
+    {
+      "id": "CISCO-ISE-RCE",
+      "target": "Cisco Identity Services Engine",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Unauthenticated OS command execution"
+    },
+    {
+      "id": "CISCO-FMC-RCE",
+      "target": "Cisco Firewall Management Center",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Java deserialization RCE"
+    },
+    {
+      "id": "CVE-2023-49103",
+      "target": "ownCloud graphapi",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Information disclosure via graphapi ProxyTest.php"
+    },
+    {
+      "id": "CVE-2023-35078",
+      "target": "MobileIron Core / Connector",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "API authentication bypass — unauthenticated API access"
+    },
+    {
+      "id": "CVE-2023-4966",
+      "target": "Citrix NetScaler ADC / Gateway",
+      "cvss": 9.4,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Citrix Bleed — sensitive session information disclosure"
+    },
+    {
+      "id": "CVE-2024-6387",
+      "target": "OpenSSH (regreSSHion)",
+      "cvss": 8.1,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "Race condition RCE in OpenSSH server — verify banner/patch"
+    },
+    {
+      "id": "CVE-2024-47699",
+      "target": "GoAccess",
+      "cvss": 7.5,
+      "status": "ACTIVE",
+      "auth_required": false,
+      "notes": "SSRF via report-title parameter"
+    },
+    {
+      "id": "CVE-2025-22876",
+      "target": "Apache Tomcat",
+      "cvss": 9.8,
+      "status": "ACTIVE",
+      "auth_required": true,
+      "notes": "Path traversal via contextPath — manager upload surface"
+    }
+  ],
+  "local": [
+    {
+      "id": "CVE-2026-31431",
+      "target": "Linux Kernel (Copy Fail)",
+      "cvss": 7.8,
+      "access_required": "Local User",
+      "notes": "AF_ALG crypto subsystem LPE"
+    },
+    {
+      "id": "CVE-2026-43500",
+      "target": "Linux Kernel (Dirty Frag)",
+      "cvss": 7.8,
+      "access_required": "Local User",
+      "notes": "Page-cache write flaw"
+    },
+    {
+      "id": "CVE-2026-26117",
+      "target": "Azure Arc Windows Agent",
+      "cvss": 7.8,
+      "access_required": "Local User",
+      "notes": "Cloud identity takeover via weak agent permissions"
+    },
+    {
+      "id": "CVE-2025-62221",
+      "target": "Windows Cloud Filter Driver",
+      "cvss": 7.8,
+      "access_required": "Local User",
+      "notes": "MiniPlasma LPE via CfAbortHydration"
+    },
+    {
+      "id": "CVE-2025-54100",
+      "target": "Windows Multiple Components",
+      "cvss": 8.8,
+      "access_required": "Local User",
+      "notes": "Zero-day patched — verify patch level"
+    },
+    {
+      "id": "YELLOWKEY",
+      "target": "Windows BitLocker / WinRE",
+      "cvss": null,
+      "access_required": "Physical USB",
+      "notes": "WinRE FsTx bypass — physical access required"
+    },
+    {
+      "id": "CVE-2024-1086",
+      "target": "Linux nf_tables",
+      "cvss": 7.8,
+      "access_required": "Local User",
+      "notes": "Netfilter nf_tables local privilege escalation"
+    }
+  ]
+}

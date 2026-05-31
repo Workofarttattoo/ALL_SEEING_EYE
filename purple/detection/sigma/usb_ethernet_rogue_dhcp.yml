@@ -1,0 +1,29 @@
+title: Rogue USB Ethernet Adapter and Suspicious DHCP
+id: ase-purple-009
+status: experimental
+description: Detects new USB CDC-ECM/RNDIS network interfaces and DHCP offers consistent with PoisonTap-class attacks
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_usb_net:
+    EventID: 12
+    TargetObject|contains:
+      - 'USB\VID_'
+      - 'RNDIS'
+      - 'CDC'
+      - 'ECM'
+  selection_dhcp:
+    EventID: 1024
+    Provider_Name: 'Microsoft-Windows-Dhcp-Client'
+  condition: selection_usb_net or selection_dhcp
+falsepositives:
+  - Legitimate USB tethering and docking stations
+  - Phone USB networking
+level: medium
+tags:
+  - attack.initial_access
+  - attack.t1200
+  - attack.collection
+  - attack.t1539

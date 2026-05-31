@@ -1,0 +1,27 @@
+title: Suspicious Outbound Beacon Pattern
+id: ase-purple-005
+status: experimental
+description: Detects periodic outbound connections consistent with C2 beaconing (PHANTOM-class implants)
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: network_connection
+  product: windows
+detection:
+  selection:
+    Initiated: 'true'
+    DestinationPort|gt: 1024
+    DestinationIp|startswith:
+      - '10.'
+      - '172.'
+      - '192.168.'
+  filter_local:
+    DestinationIp|startswith: '127.'
+  timeframe: 30m
+  condition: selection and not filter_local | count(DestinationIp) by SourceIp, DestinationIp, DestinationPort > 10
+falsepositives:
+  - Software update checks
+  - Legitimate monitoring agents
+level: high
+tags:
+  - attack.command_and_control
+  - attack.t1071

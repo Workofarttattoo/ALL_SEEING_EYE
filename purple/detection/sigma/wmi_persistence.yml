@@ -1,0 +1,18 @@
+title: WMI Event Subscription Persistence
+id: ase-purple-006
+status: stable
+description: Detects WMI event consumer/filter creation used for persistence (SHADOW-class techniques)
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: wmi_event
+  product: windows
+detection:
+  selection:
+    EventID: 5861
+  condition: selection
+falsepositives:
+  - Legitimate management software
+level: high
+tags:
+  - attack.persistence
+  - attack.t1546.003

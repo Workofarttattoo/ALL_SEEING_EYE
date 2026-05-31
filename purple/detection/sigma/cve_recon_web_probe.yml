@@ -1,0 +1,27 @@
+title: ALL_SEEING_EYE CVE Fingerprint Web Probe
+id: ase-purple-004
+status: stable
+description: Detects sequential CVE-specific path probing consistent with autorecon/mass_scan
+author: ALL_SEEING_EYE Purple Team
+logsource:
+  category: webserver
+detection:
+  selection_paths:
+    cs-uri-stem|contains:
+      - '/VisualComposer/VCFramework.wdvc'
+      - '/tmui/login.jsp'
+      - '/oim/faces/'
+      - '/api/v1/chatflows'
+      - '/server/index.php'
+      - '/_next/image'
+      - '/healthz'
+      - '/form'
+      - '/webhook'
+  timeframe: 5m
+  condition: selection_paths | count(source_ip) by source_ip > 2
+falsepositives:
+  - Authorized vulnerability scanners registered in ROE
+level: high
+tags:
+  - attack.reconnaissance
+  - attack.t1595
