@@ -181,6 +181,8 @@ python3 ase.py scan target.com --shodan --aggressive
 
 Full guide: [docs/SHODAN.md](SHODAN.md)
 
+Team playbooks: `python3 ase.py playbook blue|red|purple`
+
 ---
 
 ## Section 6: Automated Workflow

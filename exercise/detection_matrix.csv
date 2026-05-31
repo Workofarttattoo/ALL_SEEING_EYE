@@ -1,0 +1,9 @@
+loop,technique,red_start,blue_alert,delta_min,contained,rule_added,notes
+1,shodan_passive,,,,,,
+2,mass_scan,,,,,,
+3,autorecon_shodan,,,,,,
+4,nextjs_ssrf,,,,,,
+5,mongodb_port,,,,,,
+6,n8n_surface,,,,,,
+7,local_lpe_lab,,,,,,
+8,full_chain,,,,,,

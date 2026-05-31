@@ -24,6 +24,22 @@ def cmd_handbook(_: argparse.Namespace) -> int:
     return 0
 
 
+PLAYBOOKS = {
+    "blue": DOCS / "BLUE_TEAM_PLAYBOOK.md",
+    "red": DOCS / "RED_TEAM_PLAYBOOK.md",
+    "purple": DOCS / "PURPLE_TEAM_PLAYBOOK.md",
+}
+
+
+def cmd_playbook(args: argparse.Namespace) -> int:
+    path = PLAYBOOKS.get(args.team)
+    if not path or not path.exists():
+        print(f"Unknown playbook: {args.team}. Choose: blue, red, purple")
+        return 1
+    print(path.read_text())
+    return 0
+
+
 def cmd_list_cves(args: argparse.Namespace) -> int:
     payload = json.loads((DATA / "cves.json").read_text())
     section = payload.get(args.section, payload)
@@ -102,6 +118,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     handbook = sub.add_parser("handbook", help="Print the red team handbook")
     handbook.set_defaults(func=cmd_handbook)
+
+    playbook = sub.add_parser("playbook", help="Print blue, red, or purple team playbook")
+    playbook.add_argument(
+        "team",
+        choices=["blue", "red", "purple"],
+        help="Which playbook to display",
+    )
+    playbook.set_defaults(func=cmd_playbook)
 
     list_cves = sub.add_parser("cves", help="List tracked CVEs")
     list_cves.add_argument(

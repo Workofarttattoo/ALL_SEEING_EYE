@@ -36,6 +36,9 @@ python3 ase.py handbook
 | `ase rapid <file>` | Extended remote ID via `scripts/rapid_scan.sh` |
 | `ase cves [--section remote\|local\|all]` | List tracked CVEs |
 | `ase handbook` | Print red team handbook |
+| `ase playbook blue` | Blue team defensive playbook |
+| `ase playbook red` | Red team engagement playbook |
+| `ase playbook purple` | Purple team collaborative playbook |
 | `ase shodan dorks` | List CVE → Shodan query mappings |
 | `ase shodan host <ip>` | Shodan host profile |
 | `ase shodan domain <domain>` | Subdomain/DNS intel |
@@ -87,3 +90,11 @@ This toolkit provides:
 It does **not** include exploit payloads, C2, persistence, exfiltration, or anti-forensics tooling.
 
 See [docs/RED_TEAM_HANDBOOK.md](docs/RED_TEAM_HANDBOOK.md) for the full handbook, CVE matrix, and one-liners.
+
+## Team Playbooks
+
+| Playbook | Command | Role |
+|----------|---------|------|
+| Blue Team | `python3 ase.py playbook blue` | Defend against expected red team TTPs |
+| Red Team | `python3 ase.py playbook red` | Run authorized engagement when you flip sides |
+| Purple Team | `python3 ase.py playbook purple` | Joint attack/defense loops and scoring |
