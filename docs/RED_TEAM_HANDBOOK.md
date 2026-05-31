@@ -154,11 +154,44 @@ curl -sk "https://TARGET/oim/faces/adf.task-flow" | grep -i oracle
 
 ---
 
-## Section 5: Automated Workflow
+## Section 5: Shodan Integration (Passive Intel)
+
+Shodan aggregates **public banners** from Internet-wide scanning and parses them into searchable fields (`product`, `port`, `http.*`, `vuln`, `org`, etc.). ALL_SEEING_EYE maps your CVE catalog to Shodan filter syntax in `data/shodan_dorks.json`.
 
 ```bash
-# 1. Discovery — parallel autorecon
-cat targets.txt | xargs -P10 -I{} python3 tools/autorecon.py {} --aggressive
+export SHODAN_API_KEY="your_key"   # https://account.shodan.io
+
+# View CVE → Shodan dork mappings (no API key needed)
+python3 ase.py shodan dorks
+
+# Count global exposure cheaply before searching
+python3 tools/shodan_recon.py hunt --cve CVE-2025-53521 --count-only
+
+# Scope to engagement target
+python3 tools/shodan_recon.py hunt --org "Target Corp" --count-only
+python3 tools/shodan_recon.py hunt --net 10.0.0.0/8 --cve CVE-2025-14847
+
+# Subdomain seeding + host profile
+python3 ase.py shodan domain target.com
+python3 ase.py shodan host 203.0.113.10
+
+# Merge Shodan banners/vulns into active scan
+python3 ase.py scan target.com --shodan --aggressive
+```
+
+Full guide: [docs/SHODAN.md](SHODAN.md)
+
+---
+
+## Section 6: Automated Workflow
+
+```bash
+# 0. Shodan-first (passive) — scope with org/net/hostname filters
+python3 tools/shodan_recon.py hunt --count-only
+python3 tools/shodan_recon.py domain target.com -o reports/dns.json
+
+# 1. Discovery — parallel autorecon with Shodan enrichment
+cat targets.txt | xargs -P10 -I{} python3 tools/autorecon.py {} --aggressive --shodan
 
 # 2. Mass fingerprint
 bash scripts/mass_scan.sh targets.txt
@@ -166,7 +199,7 @@ bash scripts/mass_scan.sh targets.txt
 # 3. Extended remote identification
 bash scripts/rapid_scan.sh high_value_targets.txt
 
-# 4. Local assessment on compromised/lab host
+# 4. Local assessment on lab host
 python3 tools/local_detect.py
 
 # 5. Review JSON reports
@@ -175,7 +208,7 @@ ls -la reports/
 
 ---
 
-## Section 6: OPSEC Notes (Authorized Testing)
+## Section 7: OPSEC Notes (Authorized Testing)
 
 - Obtain written scope and rules of engagement before scanning
 - Use rate limiting and jitter between requests (1–5 seconds)
@@ -186,7 +219,7 @@ ls -la reports/
 
 ---
 
-## Section 7: What This Toolkit Does NOT Include
+## Section 8: What This Toolkit Does NOT Include
 
 The following are intentionally out of scope for this repository:
 
@@ -200,7 +233,7 @@ For authorized post-exploitation in professional engagements, use licensed comme
 
 ---
 
-## Section 8: Report Format
+## Section 9: Report Format
 
 JSON reports are written to `reports/` (or `scan_results_*/json/` during mass scans):
 
@@ -222,15 +255,17 @@ JSON reports are written to `reports/` (or `scan_results_*/json/` during mass sc
 
 ---
 
-## Section 9: Project Layout
+## Section 10: Project Layout
 
 ```
 ALL_SEEING_EYE/
 ├── ase.py                 # Main CLI entry point
 ├── data/cves.json         # CVE catalog
+├── data/shodan_dorks.json # CVE → Shodan filter mappings
 ├── docs/RED_TEAM_HANDBOOK.md
-├── lib/                   # Shared detection modules
-├── tools/                 # autorecon, local_detect, remote_scan
+├── docs/SHODAN.md         # Shodan integration guide
+├── lib/                   # Shared detection + Shodan modules
+├── tools/                 # autorecon, shodan_recon, local_detect, remote_scan
 ├── scripts/               # mass_scan.sh, rapid_scan.sh
 └── reports/               # Generated scan output (gitignored)
 ```

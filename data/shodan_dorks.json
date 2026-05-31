@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "description": "CVE-to-Shodan dork mappings derived from Shodan's banner parsing model",
+    "docs": "https://developer.shodan.io/search/filters",
+    "notes": [
+      "Shodan indexes TCP/UDP banners into structured fields: product, port, http.*, ssl.*, vuln",
+      "Use count queries first to preserve API credits; search returns paginated matches",
+      "vuln: filter requires Shodan paid membership for most CVE filters"
+    ]
+  },
+  "dorks": [
+    {
+      "cve": "CVE-2025-31324",
+      "target": "SAP NetWeaver Visual Composer",
+      "queries": [
+        "http.title:\"SAP NetWeaver\"",
+        "http.html:\"Visual Composer\"",
+        "product:\"SAP\" port:50000",
+        "http.html:\"VCFramework.wdvc\""
+      ],
+      "facets": ["org", "country", "port"]
+    },
+    {
+      "cve": "CVE-2025-53521",
+      "target": "F5 BIG-IP",
+      "queries": [
+        "http.title:\"BIG-IP\"",
+        "http.html:\"F5 Networks\"",
+        "product:\"BIG-IP\"",
+        "http.html:\"tmui/login.jsp\"",
+        "ssl:\"F5\""
+      ],
+      "facets": ["org", "country", "version"]
+    },
+    {
+      "cve": "CVE-2025-66478",
+      "target": "Next.js",
+      "queries": [
+        "http.component:\"Next.js\"",
+        "http.headers.server:\"Next.js\"",
+        "http.html:\"__next\"",
+        "http.html:\"/_next/static\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2025-14847",
+      "target": "MongoDB",
+      "queries": [
+        "product:\"MongoDB\"",
+        "port:27017",
+        "port:27017 \"MongoDB Server\""
+      ],
+      "facets": ["org", "country", "version"]
+    },
+    {
+      "cve": "CVE-2025-0520",
+      "target": "ShowDoc",
+      "queries": [
+        "http.title:\"ShowDoc\"",
+        "http.html:\"showdoc\"",
+        "http.html:\"/server/index.php\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2026-29014",
+      "target": "MetInfo CMS",
+      "queries": [
+        "http.html:\"MetInfo\"",
+        "http.html:\"content=\\\"MetInfo\\\"\"",
+        "http.title:\"MetInfo\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2025-59528",
+      "target": "Flowise AI",
+      "queries": [
+        "http.title:\"Flowise\"",
+        "http.html:\"flowise\"",
+        "http.html:\"/api/v1/chatflows\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2025-32433",
+      "target": "Erlang SSH",
+      "queries": [
+        "product:\"Erlang\" port:22",
+        "port:22 \"Erlang/OTP\"",
+        "ssh.version:\"Erlang\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2026-21992",
+      "target": "Oracle Identity Manager",
+      "queries": [
+        "http.title:\"Oracle Identity Manager\"",
+        "http.html:\"OracleIdentityManager\"",
+        "http.html:\"/oim/faces/\"",
+        "product:\"Oracle\" http.html:\"Identity Manager\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2026-27493",
+      "target": "n8n Workflow",
+      "queries": [
+        "http.title:\"n8n\"",
+        "http.html:\"n8n\"",
+        "http.html:\"/healthz\"",
+        "product:\"n8n\""
+      ],
+      "facets": ["org", "country", "port"]
+    },
+    {
+      "cve": "CISCO-ISE-RCE",
+      "target": "Cisco ISE",
+      "queries": [
+        "http.title:\"Identity Services Engine\"",
+        "http.html:\"Cisco Identity Services Engine\"",
+        "product:\"Cisco\" http.html:\"ISE\"",
+        "ssl:\"Cisco ISE\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CISCO-FMC-RCE",
+      "target": "Cisco FMC",
+      "queries": [
+        "http.title:\"Firepower Management Center\"",
+        "http.html:\"Cisco Firepower\"",
+        "http.html:\"/api/fmc_config/\"",
+        "product:\"Cisco\" http.html:\"FMC\""
+      ],
+      "facets": ["org", "country"]
+    },
+    {
+      "cve": "CVE-2026-20223",
+      "target": "Cisco REST API",
+      "queries": [
+        "http.html:\"Cisco IOS XE\"",
+        "product:\"Cisco\" http.html:\"/restconf/\"",
+        "http.html:\"cisco-ios\""
+      ],
+      "facets": ["org", "country"]
+    }
+  ],
+  "scope_modifiers": {
+    "hostname": "hostname:{value}",
+    "org": "org:\"{value}\"",
+    "net": "net:{value}",
+    "country": "country:{value}",
+    "asn": "asn:{value}",
+    "port": "port:{value}"
+  },
+  "enrichment_fields": [
+    "ip_str",
+    "ports",
+    "hostnames",
+    "domains",
+    "org",
+    "isp",
+    "asn",
+    "os",
+    "tags",
+    "vulns",
+    "location",
+    "last_update"
+  ]
+}

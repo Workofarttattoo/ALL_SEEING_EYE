@@ -41,12 +41,16 @@ class ScanReport:
         self.findings.append(finding)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "target": self.target,
             "timestamp": self.timestamp,
             "open_ports": self.open_ports,
             "findings": [asdict(f) for f in self.findings],
         }
+        shodan_findings = [f for f in self.findings if f.category == "shodan"]
+        if shodan_findings:
+            payload["shodan_enriched"] = True
+        return payload
 
     def save(self, output_dir: Path) -> Path:
         output_dir.mkdir(parents=True, exist_ok=True)

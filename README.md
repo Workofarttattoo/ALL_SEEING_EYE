@@ -36,12 +36,34 @@ python3 ase.py handbook
 | `ase rapid <file>` | Extended remote ID via `scripts/rapid_scan.sh` |
 | `ase cves [--section remote\|local\|all]` | List tracked CVEs |
 | `ase handbook` | Print red team handbook |
+| `ase shodan dorks` | List CVE → Shodan query mappings |
+| `ase shodan host <ip>` | Shodan host profile |
+| `ase shodan domain <domain>` | Subdomain/DNS intel |
+| `ase shodan hunt` | Hunt CVE dorks against Shodan index |
+| `ase scan <target> --shodan` | Active scan + Shodan enrichment |
+
+## Shodan Integration
+
+Shodan indexes public Internet banners into searchable fields. ALL_SEEING_EYE maps your CVE catalog to Shodan filter syntax and enriches scans with historical host data.
+
+```bash
+export SHODAN_API_KEY="your_key"   # https://account.shodan.io
+
+python3 ase.py shodan dorks                              # no key needed
+python3 ase.py shodan host target.com
+python3 ase.py shodan domain target.com
+python3 tools/shodan_recon.py hunt --count-only          # scout cheaply
+python3 ase.py scan target.com --shodan --aggressive
+```
+
+See [docs/SHODAN.md](docs/SHODAN.md) for the full data model, credit tips, and workflow.
 
 ## Project Structure
 
 ```
 ├── ase.py              # Unified CLI
 ├── data/cves.json      # CVE catalog (remote + local)
+├── data/shodan_dorks.json  # CVE → Shodan filter mappings
 ├── docs/               # Red team handbook
 ├── lib/                # Detection modules
 ├── tools/              # autorecon, local_detect, remote_scan

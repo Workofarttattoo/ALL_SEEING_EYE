@@ -53,8 +53,17 @@ def cmd_scan(args: argparse.Namespace) -> int:
     extra = [args.target]
     if args.aggressive:
         extra.append("--aggressive")
+    if args.shodan:
+        extra.append("--shodan")
     extra.extend(["--output-dir", args.output_dir])
     return _run_tool("autorecon.py", extra)
+
+
+def cmd_shodan(args: argparse.Namespace) -> int:
+    extra: list[str] = [args.shodan_command, *args.shodan_args]
+    if args.output:
+        extra.extend(["--output", args.output])
+    return _run_tool("shodan_recon.py", extra)
 
 
 def cmd_local(args: argparse.Namespace) -> int:
@@ -106,8 +115,19 @@ def build_parser() -> argparse.ArgumentParser:
     scan = sub.add_parser("scan", help="Full autorecon against a target")
     scan.add_argument("target", help="URL, hostname, or IP")
     scan.add_argument("--aggressive", action="store_true", help="Extended remote checks")
+    scan.add_argument("--shodan", action="store_true", help="Enrich scan with Shodan host intel")
     scan.add_argument("--output-dir", default="reports")
     scan.set_defaults(func=cmd_scan)
+
+    shodan = sub.add_parser("shodan", help="Shodan intel: host, domain, hunt, search")
+    shodan.add_argument(
+        "shodan_command",
+        choices=["info", "host", "domain", "hunt", "search", "dorks", "filters"],
+        help="Shodan subcommand (pass extra args after --)",
+    )
+    shodan.add_argument("shodan_args", nargs="*", help="Arguments forwarded to shodan_recon.py")
+    shodan.add_argument("--output", "-o", help="Output file forwarded when supported")
+    shodan.set_defaults(func=cmd_shodan)
 
     local = sub.add_parser("local", help="Local system indicator scan")
     local.add_argument("--output-dir", default="reports")

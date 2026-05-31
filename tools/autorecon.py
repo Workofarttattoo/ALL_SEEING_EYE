@@ -16,6 +16,7 @@ from lib.colors import Colors
 from lib.local_checks import run_local_checks
 from lib.remote_checks import port_scan_quick, run_remote_checks
 from lib.reporter import ScanReport
+from lib.shodan_enrich import enrich_report
 from lib.target import Target
 
 
@@ -37,6 +38,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Autonomous CVE-focused recon scanner")
     parser.add_argument("target", nargs="?", help="URL, hostname, or IP")
     parser.add_argument("--aggressive", action="store_true", help="Include extended remote checks")
+    parser.add_argument("--shodan", action="store_true", help="Enrich with Shodan host intel (needs SHODAN_API_KEY)")
     parser.add_argument("--local", action="store_true", help="Run local system checks instead of remote")
     parser.add_argument(
         "--output-dir",
@@ -71,6 +73,14 @@ def main() -> int:
 
     port_scan_quick(target, report)
     run_remote_checks(target, report, extended=args.aggressive)
+
+    if args.shodan:
+        print(f"\n{Colors.CYAN}[*] Enriching with Shodan host intelligence...{Colors.END}")
+        if enrich_report(report, target.domain) is None:
+            print(
+                f"{Colors.YELLOW}[!] Shodan skipped — set SHODAN_API_KEY or pip install shodan{Colors.END}"
+            )
+
     report.print_summary()
     path = report.save(Path(args.output_dir))
     print(f"{Colors.CYAN}[*] Report saved to: {path}{Colors.END}")
