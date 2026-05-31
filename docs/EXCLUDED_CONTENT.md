@@ -16,6 +16,8 @@ This repo ships **authorized recon, CVE fingerprinting, and purple-team detectio
 | DNS C2, memory droppers, EDR unhooking | Malware cookbook content |
 | Router/printer backdoors, `implant.sh`, Bjorn C2 | Hardware/implant deployment |
 | Sliver / Havoc in install scripts | C2 framework provisioning |
+| PoisonTap 2026 / Venice chat weaponized rewrites | USB MITM, CDN cache poisoning, cookie exfil, WS backdoors |
+| `populate_cdn.sh`, `target_backdoor_*.js`, `pi_poisontap_2026.js` | CDN poisoning pipeline |
 
 ---
 

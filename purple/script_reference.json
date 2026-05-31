@@ -254,9 +254,17 @@
       "mitre": "T1048",
       "phase": "exfiltration",
       "detects": "DNS-over-HTTPS encoded subdomain exfiltration"
+    },
+    {
+      "name": "usb_ethernet_rogue_dhcp",
+      "path": "purple/detection/sigma/usb_ethernet_rogue_dhcp.yml",
+      "mitre": "T1200",
+      "phase": "initial_access",
+      "detects": "PoisonTap-class USB Ethernet gadget and rogue DHCP"
     }
   ],
   "ttp_reference": "docs/ttps/POST_EXPLOIT_TTP_REFERENCE.md",
   "advanced_playbook": "docs/RED_TEAM_ADVANCED_PLAYBOOK.md",
-  "network_guide": "docs/NETWORK_2026_GUIDE.md"
+  "network_guide": "docs/NETWORK_2026_GUIDE.md",
+  "education_poisontap": "Education/poisonTap/README.md"
 }

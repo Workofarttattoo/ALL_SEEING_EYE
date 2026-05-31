@@ -105,3 +105,10 @@ See [docs/RED_TEAM_HANDBOOK.md](docs/RED_TEAM_HANDBOOK.md) for the full handbook
 | Script index | `python3 ase.py scripts` | All toolkit + detection assets in one list |
 | Network 2026 guide | `python3 ase.py handbook network` | QUIC/DoH/modern recon methodology |
 | Network recon | `python3 ase.py network target.com` | tlsx + nuclei + ASE orchestrator |
+
+## Education (defensive)
+
+| Topic | Path |
+|-------|------|
+| PoisonTap / Venice chat archive | `Education/poisonTap/README.md` |
+| Excluded weaponized content policy | `docs/EXCLUDED_CONTENT.md` |
