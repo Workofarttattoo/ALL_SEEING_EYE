@@ -1,21 +1,18 @@
-# ALL_SEEING_EYE: Psychedelic Occult-Cyberpunk Command Center
+# ALL_SEEING_EYE: Dual-Mode Occult-Cyberpunk Command Center
 
-Ported and enhanced for RISC-V Linux smarthome panels, the All-Seeing Eye has been transformed into a Neo-Occult terminal for the Second 60s (2066).
+Optimized for Lichee RISC-V boards and 86mm Smart Home Panels.
 
 ## Features
-- **Occult UI:** High-definition 4K dashboard with engraver-style iconography and sacred geometry.
-- **Aura Cleanser:** Pulse-frequency generator to prepare your bio-resonance for unseen signals.
-- **Ghost Box:** RF dead-space simulator to capture fragments from the aether.
-- **Illegal Zine:** Hidden underground digital zine with "illegal thoughts" on privacy and technology.
-- **RISC-V Optimized:** Adapted for low-power RISC-V SoC with async I/O and performance caching.
-- **Macro System:** One-touch commands for Lockdown, Night Mode, and Session Purge.
+- **Covert Mode:** Boots by default into a legitimate-looking WAFT Smart Home UI for inspection passing.
+- **True Firmware:** Activated via a secret slider combination (Living Room at 66%) to "boot" into the All-Seeing Eye command center.
+- **Neo-Occult Terminal:** 4K dashboard with engraver-style art, sacred geometry, and tribal sigils.
+- **Aura Cleanser & Ghost Box:** Functional RF simulation and bio-resonance generators.
+- **Subversive Zine:** Hidden "Illegal Thoughts" digital zine (Second 60s / 2066 theme).
+- **RISC-V Optimized:** High-concurrency Node.js backend with async I/O.
 
-## Porting to RISC-V
-See `PORTING.md` for hardware-specific configuration and dependency mapping.
-
-## Setup
-1. `npm install`
-2. Run `./pi_startup_2026.sh` to initialize network interfaces and launch backend servers.
-3. Access UI at `http://localhost:3000`.
+## Deployment
+1. Transfer files to the panel.
+2. Run `./deploy_riscv.sh` to install and enable the autostart service.
+3. The panel will now boot directly into the "Legitimate" home UI.
 
 [ DISTRIBUTE OR DIE ]

