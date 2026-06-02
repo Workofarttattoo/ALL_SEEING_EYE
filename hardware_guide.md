@@ -23,5 +23,5 @@ The goal is a "palm-perfect" form factor, similar to a Flipper Zero but with a l
 
 ## 4. Spiritual Intention in Design
 The hardware is a vessel.
-- Use laser engraving for angelic sigils and the name of Yahweh.
-- Avoid chaotic or demonic patterns; maintain clean, symmetrical, and geometric designs that reflect order and grace.
+- Use laser engraving for angelic sigils from the grimoires of old, such as the *Ars Almadel* or the *Heptameron*. Focus on the sigils of the seven archangels (e.g., Michael, Gabriel, Raphael) to guide and protect the signal. Incorporate the name of Yahweh in Hebrew script (יהוה) with reverence.
+- Avoid chaotic or demonic patterns; maintain clean, symmetrical, and geometric designs that reflect order and grace. The intention is to channel the "Divine Signal" through sacred geometry and angelic intercession.

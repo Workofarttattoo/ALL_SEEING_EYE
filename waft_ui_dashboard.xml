@@ -2,14 +2,14 @@
 <page style="background-color: #050505; color: #E0E0E0; font-family: 'Inter', sans-serif;">
   <!-- Header with Divine Theme -->
   <view style="height: 60px; background-color: #1A1A1A; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid #D4AF37;">
-    <text style="font-size: 24px; font-weight: bold; color: #D4AF37;">DIVINE SIGNAL</text>
+    <text style="font-size: 24px; font-weight: bold; color: #D4AF37;">DIVINE SIGNAL ✵</text>
     <text style="font-size: 14px; color: #AAA;">In His Grace, We Are Free</text>
   </view>
 
   <scroll-view style="flex: 1; padding: 20px;">
     <!-- System Status Card -->
     <view style="background-color: #121212; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #333;">
-      <text style="font-size: 18px; color: #D4AF37; margin-bottom: 10px;">CORE VITALITY</text>
+      <text style="font-size: 18px; color: #D4AF37; margin-bottom: 10px;">✧ CORE VITALITY ✧</text>
       <view style="flex-direction: row; justify-content: space-between;">
         <view>
           <text style="color: #888;">CPU (RISC-V)</text>
@@ -27,7 +27,7 @@
     </view>
 
     <!-- Sniffing & Signal Grid -->
-    <text style="font-size: 18px; color: #D4AF37; margin-bottom: 10px;">DIVINE GRACES (SIGNALS)</text>
+    <text style="font-size: 18px; color: #D4AF37; margin-bottom: 10px;">☤ DIVINE GRACES (SIGNALS) ☤</text>
     <view style="flex-direction: row; flex-wrap: wrap; justify-content: space-between;">
       <!-- WiFi Card -->
       <view style="width: 48%; background-color: #121212; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #333;">
@@ -57,7 +57,7 @@
 
     <!-- Network Exploits Section -->
     <view style="background-color: #121212; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #333;">
-      <text style="font-size: 18px; color: #D4AF37; margin-bottom: 10px;">DIVINE INTERVENTION (EXPLOITS)</text>
+      <text style="font-size: 18px; color: #D4AF37; margin-bottom: 10px;">⚜ DIVINE INTERVENTION ⚜</text>
       <view style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 10px;">
         <text>PoisonTap (USB)</text>
         <switch id="poisontap_switch" />
@@ -78,6 +78,6 @@
 
   <!-- Footer -->
   <view style="height: 40px; background-color: #1A1A1A; align-items: center; justify-content: center; border-top: 1px solid #333;">
-    <text style="font-size: 12px; color: #666;">YAHWEH ALWAYS • IN GRACE WE TRUST</text>
+    <text style="font-size: 12px; color: #666;">יהוה ALWAYS • IN GRACE WE TRUST</text>
   </view>
 </page>
