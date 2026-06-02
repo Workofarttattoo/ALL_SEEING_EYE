@@ -59,3 +59,17 @@ exec node --no-warnings --max-old-space-size=128 ./pi_poisontap_2026.js
 # Launch Control Panel Backend
 node --no-warnings ./backend_server_2026.js &
 echo "[+] Control Panel (All-Seeing Eye) active on port 3000"
+
+# --- UI Launcher (Kiosk Mode) ---
+# Check if a display is connected and launch the browser
+if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+    echo "[*] Launching All-Seeing Eye UI in Kiosk Mode..."
+    # Support for common light browsers on RISC-V Linux
+    if command -v chromium-browser &> /dev/null; then
+        chromium-browser --kiosk --incognito --app=http://localhost:3000 &
+    elif command -v firefox &> /dev/null; then
+        firefox --kiosk http://localhost:3000 &
+    else
+        echo "[!] No supported browser found for kiosk mode. Please install chromium-browser or firefox."
+    fi
+fi
