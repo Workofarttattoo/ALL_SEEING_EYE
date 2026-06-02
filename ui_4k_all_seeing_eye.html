@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ALL-SEEING EYE | System HUD</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --primary-glow: rgba(0, 230, 57, 0.4);
+            --secondary-glow: rgba(0, 220, 230, 0.3);
+        }
+        body {
+            background-color: #0d0d0d;
+            color: #e5e2e1;
+            overflow-x: hidden;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 255, 65, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 99;
+            pointer-events: none;
+        }
+        .crt-flicker {
+            animation: flicker 0.15s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            5% { opacity: 0.95; }
+            10% { opacity: 0.99; }
+            15% { opacity: 0.92; }
+            20% { opacity: 0.99; }
+            100% { opacity: 1; }
+        }
+        .glitch-text {
+            text-shadow: 2px 0 #00f1fd, -2px 0 #00ff41;
+        }
+        .hud-border {
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            backdrop-filter: blur(12px);
+        }
+        .hud-border:hover {
+            border-color: rgba(0, 255, 65, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #00e639;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+        .live-dot {
+            animation: pulse-dot 2s infinite;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-tertiary-fixed-variant": "#91002d",
+                "on-background": "#e5e2e1",
+                "primary-fixed": "#72ff70",
+                "tertiary-fixed-dim": "#ffb2b8",
+                "surface-container-lowest": "#0e0e0e",
+                "on-secondary-container": "#006a6f",
+                "background": "#131313",
+                "on-primary-fixed-variant": "#00530e",
+                "secondary": "#dcfdff",
+                "primary": "#ebffe2",
+                "tertiary": "#fff8f7",
+                "on-tertiary": "#67001d",
+                "outline": "#84967e",
+                "outline-variant": "#3b4b37",
+                "surface-container": "#201f1f",
+                "primary-container": "#00ff41",
+                "on-surface": "#e5e2e1",
+                "surface-variant": "#353534",
+                "on-tertiary-container": "#c2003f",
+                "secondary-fixed": "#6ff6ff",
+                "secondary-container": "#00f1fd",
+                "on-secondary-fixed": "#002022",
+                "primary-fixed-dim": "#00e639",
+                "on-secondary": "#00373a",
+                "on-primary-container": "#007117",
+                "surface-tint": "#00e639",
+                "surface": "#131313",
+                "inverse-on-surface": "#313030",
+                "on-error": "#690005",
+                "on-surface-variant": "#b9ccb2",
+                "surface-dim": "#131313",
+                "secondary-fixed-dim": "#00dce6",
+                "inverse-surface": "#e5e2e1",
+                "on-error-container": "#ffdad6",
+                "on-primary-fixed": "#002203",
+                "tertiary-fixed": "#ffdadb",
+                "inverse-primary": "#006e16",
+                "on-primary": "#003907",
+                "surface-container-high": "#2a2a2a",
+                "tertiary-container": "#ffd2d4",
+                "surface-container-low": "#1c1b1b",
+                "error": "#ffb4ab",
+                "error-container": "#93000a",
+                "surface-bright": "#3a3939",
+                "surface-container-highest": "#353534",
+                "on-secondary-fixed-variant": "#004f53",
+                "on-tertiary-fixed": "#40000f"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "container-max": "1920px",
+                "gutter": "16px",
+                "unit": "4px",
+                "margin-safe": "32px"
+            },
+            "fontFamily": {
+                "headline-md": ["Space Mono", "monospace"],
+                "label-mono": ["JetBrains Mono", "monospace"],
+                "display-lg": ["Space Mono", "monospace"],
+                "body-lg": ["JetBrains Mono", "monospace"],
+                "headline-lg": ["Space Mono", "monospace"],
+                "body-md": ["JetBrains Mono", "monospace"],
+                "code-sm": ["JetBrains Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<div class="scanlines"></div>
+<div class="grid-overlay"></div>
+<!-- Background Imagery -->
+<div class="fixed inset-0 z-0 opacity-20">
+<img class="w-full h-full object-cover grayscale brightness-50 contrast-125" data-alt="A cinematic, high-density cyberpunk city view at night with glowing neon green and cyan skyscrapers. The scene features deep shadows and sharp vertical light streaks against a dark, metallic architecture. Digital scanlines and a faint hexagonal grid overlay are visible, creating a sophisticated server-room atmosphere with heavy atmospheric haze and technological complexity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACUZbLlt45gpro7bGIX3qpZ_sTF-psi6AVlzKMUIThJILivNSQ32Fnlslg5mBASRubhesV-7NvHjtImKnvAam719jHB7XRMSR7kcXCYVwpMytYJvbA2B2w4JspK1Iyk2C3YyqkW_IpnwEyVwGn8pQdJP27y3iMx9Z-5Bbf2v5z2dExktCWGu1qvicjyW1fj3PNxwpplSlVzjO6YRZvCMRUirVYc3vhugi2ia0G7d1AsAhg5fkpEmB4zd2QH7TX03BUE-v6oPIFVGM"/>
+</div>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full bg-background/80 backdrop-blur-md text-primary font-headline-md text-headline-md uppercase tracking-widest border-b border-primary/20 shadow-[0_2px_10px_rgba(0,230,57,0.1)] flex justify-between items-center px-gutter h-16 w-full z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary drop-shadow-[0_0_8px_rgba(0,230,57,0.4)]">ALL-SEEING EYE</h1>
+</div>
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex gap-6 text-label-mono font-label-mono">
+<a class="text-primary hover:bg-primary/10 transition-colors px-3 py-1" href="#">NODES</a>
+<a class="text-on-surface-variant hover:bg-primary/10 transition-colors px-3 py-1" href="#">SHIELD</a>
+<a class="text-on-surface-variant hover:bg-primary/10 transition-colors px-3 py-1" href="#">MACROS</a>
+<a class="text-on-surface-variant hover:bg-primary/10 transition-colors px-3 py-1" href="#">SYSTEM</a>
+</nav>
+<button class="material-symbols-outlined hover:bg-primary/10 transition-colors p-2 active:scale-95 duration-100">settings_input_component</button>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="relative z-10 pt-24 pb-24 px-gutter max-w-container-max mx-auto grid grid-cols-12 gap-gutter">
+<!-- Left Column: System Monitoring -->
+<section class="col-span-12 lg:col-span-3 flex flex-col gap-gutter">
+<!-- CPU Load Module -->
+<div class="hud-border bg-surface-container-lowest/40 p-4 relative overflow-hidden group">
+<div class="flex justify-between items-center mb-4">
+<span class="text-label-mono font-label-mono text-primary-fixed-dim">CPU_RESOURCES</span>
+<span class="text-code-sm font-code-sm text-secondary">LOAD: 42%</span>
+</div>
+<div class="h-24 flex items-end gap-1 px-1">
+<div class="flex-1 bg-primary/20 h-[20%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/20 h-[45%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/20 h-[30%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/20 h-[60%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/20 h-[55%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/20 h-[80%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/20 h-[40%] group-hover:bg-primary/40 transition-all"></div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="px-2 py-0.5 border border-primary/30 text-[10px] font-label-mono text-primary uppercase">Core_01: ACTIVE</span>
+<span class="px-2 py-0.5 border border-primary/30 text-[10px] font-label-mono text-primary uppercase">Core_02: IDLE</span>
+</div>
+</div>
+<!-- Memory Status -->
+<div class="hud-border bg-surface-container-lowest/40 p-4">
+<h3 class="font-label-mono text-label-mono text-secondary mb-4 uppercase">Memory_Allocation</h3>
+<div class="relative h-4 w-full bg-outline-variant/30 overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-secondary-fixed-dim shadow-[0_0_10px_rgba(0,220,230,0.5)] w-[68%]"></div>
+</div>
+<div class="mt-2 flex justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>USED: 10.8GB</span>
+<span>TOTAL: 16.0GB</span>
+</div>
+</div>
+<!-- Network Traffic -->
+<div class="hud-border bg-surface-container-lowest/40 p-4">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-2 h-2 rounded-full bg-primary-container live-dot"></span>
+<h3 class="font-label-mono text-label-mono text-primary uppercase">Live_Network_Stream</h3>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-code-sm font-code-sm border-b border-primary/10 pb-1">
+<span class="text-on-surface-variant">INBOUND</span>
+<span class="text-primary-fixed-dim">124.5 KB/s</span>
+</div>
+<div class="flex justify-between items-center text-code-sm font-code-sm border-b border-primary/10 pb-1">
+<span class="text-on-surface-variant">OUTBOUND</span>
+<span class="text-secondary-fixed-dim">12.1 KB/s</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Central Column: All-Seeing Eye & Terminal -->
+<section class="col-span-12 lg:col-span-6 flex flex-col gap-gutter">
+<!-- Central HUD Core -->
+<div class="relative aspect-square flex items-center justify-center border border-primary/10 rounded-full">
+<!-- Circular HUD Decor -->
+<div class="absolute inset-4 border-2 border-dashed border-primary/20 rounded-full animate-[spin_20s_linear_infinite]"></div>
+<div class="absolute inset-12 border border-secondary/20 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+<!-- The Eye -->
+<div class="relative z-20 group cursor-crosshair">
+<div class="w-64 h-64 flex items-center justify-center bg-surface-container-lowest/40 backdrop-blur-xl rounded-full border border-primary/40 shadow-[0_0_40px_rgba(0,255,65,0.15)] overflow-hidden">
+<span class="material-symbols-outlined text-[120px] text-primary-fixed-dim drop-shadow-[0_0_20px_rgba(0,255,65,0.8)] group-hover:scale-110 transition-transform duration-500" style="font-variation-settings: 'FILL' 1;">visibility</span>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent"></div>
+</div>
+<!-- Coordinates Decor -->
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-code-sm font-code-sm text-primary-fixed-dim whitespace-nowrap">
+                        LOC: [34.0522° N, 118.2437° W]
+                    </div>
+</div>
+</div>
+<!-- RISC-V Terminal -->
+<div class="hud-border bg-surface-container-lowest/60 flex-1 min-h-[300px] flex flex-col font-code-sm text-code-sm">
+<div class="bg-primary/10 px-4 py-2 flex justify-between items-center border-b border-primary/20">
+<span class="text-primary-fixed-dim font-label-mono">KERNEL_LOG::RISC-V_6.1</span>
+<span class="text-secondary-fixed-dim">UPTIME: 42:15:08</span>
+</div>
+<div class="p-4 terminal-scroll overflow-y-auto space-y-1 text-primary/80">
+<p class="text-secondary">[ 0.000000] Linux version 6.1.0-riscv64 (operator@eye-station)</p>
+<p>[ 0.000000] CPU0: RISC-V Hart ID 0, ISA RV64IMAFDC</p>
+<p>[ 0.000142] Memory: 16234K/1048576K available</p>
+<p>[ 0.002541] NET: Registered PF_INET protocol family</p>
+<p class="text-primary-fixed-dim font-bold">[ 0.003412] ALL-SEEING-EYE Subsystem: INITIALIZED</p>
+<p>[ 0.004122] Homing sequence started... DONE</p>
+<p>[ 0.004555] Calibrating HUD overlays... DONE</p>
+<p>[ 0.005121] Establishing encrypted tunnel 0xFA42... SUCCESS</p>
+<p class="text-on-error animate-pulse">[ 0.006210] WARNING: External node ping detected at 192.168.1.104</p>
+<p>&gt; _<span class="inline-block w-2 h-4 bg-primary animate-pulse"></span></p>
+</div>
+</div>
+</section>
+<!-- Right Column: Status & Feeds -->
+<section class="col-span-12 lg:col-span-3 flex flex-col gap-gutter">
+<!-- Surveillance Preview -->
+<div class="hud-border bg-surface-container-lowest/40 overflow-hidden group">
+<div class="relative h-48 bg-surface-variant">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-75" data-alt="A dark industrial server room corridor with cold blue lighting. In the foreground, a high-tech surveillance camera with a glowing red LED lens indicator points down the hall. The visual style is grainy and high-contrast, mimicking a closed-circuit television feed with timestamp overlays and digital distortion artifacts in a cyberpunk aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgfz3s6to5qNbAMXFyvpNQrWQ24dgu-0pG1P9JqBYzPfofcdZaJyJLCBPja9o770Fh2l8AmCjdmcZ1N-_YGp_LVA0xmdmaG5PgtWj4q8qiZeZRc2q7Y6Mv17ZUIfSbUoPFV9wn6YtS1teLkl5sNVd8dQMwyo_PKJ721NANRsbD_zE1pGOw-xq-VJMxa_EOalzXQU6EaR9tZvJji32ANrVRQnTVafErsr3DBomzKJy4w2TSZwevTK5OXBl-7OkBVo-rHdpvHLnjLaQ"/>
+<div class="absolute top-2 left-2 flex items-center gap-2 bg-black/60 px-2 py-1">
+<span class="w-2 h-2 rounded-full bg-error live-dot"></span>
+<span class="text-[10px] font-label-mono text-error">REC: CAM_01_ENTRY</span>
+</div>
+<!-- CRT Overlay Effect -->
+<div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,transparent_50%,rgba(0,0,0,0.5)_100%)]"></div>
+</div>
+<div class="p-3 bg-background/60 flex justify-between items-center">
+<span class="text-code-sm font-code-sm text-on-surface-variant">MOTION: NEGATIVE</span>
+<button class="material-symbols-outlined text-primary hover:text-secondary-fixed-dim transition-colors">fullscreen</button>
+</div>
+</div>
+<!-- Device Status Grid -->
+<div class="hud-border bg-surface-container-lowest/40 p-4">
+<h3 class="font-label-mono text-label-mono text-primary mb-4 uppercase">Connected_Devices</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">hub</span>
+<div class="flex flex-col">
+<span class="text-body-md font-body-md text-on-surface">MAIN_HUB</span>
+<span class="text-[10px] font-label-mono text-primary/60">CONNECTED</span>
+</div>
+</div>
+<div class="w-1.5 h-1.5 rounded-full bg-primary-container"></div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+<div class="flex flex-col">
+<span class="text-body-md font-body-md text-on-surface-variant">FRONT_LOCK</span>
+<span class="text-[10px] font-label-mono text-on-surface-variant/40">SECURED</span>
+</div>
+</div>
+<div class="w-1.5 h-1.5 rounded-full bg-primary-container"></div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-fixed-dim">thermostat</span>
+<div class="flex flex-col">
+<span class="text-body-md font-body-md text-on-surface">HVAC_UNIT</span>
+<span class="text-[10px] font-label-mono text-secondary/60">22.4°C</span>
+</div>
+</div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+</div>
+</div>
+<button class="mt-6 w-full py-2 border border-primary/20 text-label-mono text-label-mono text-primary hover:bg-primary/10 transition-all uppercase active:scale-[0.98]">
+                    Scan_Network
+                </button>
+</div>
+<!-- Encryption Key Status -->
+<div class="hud-border bg-primary-container/5 p-4 border-l-4 border-l-primary">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary-fixed-dim text-sm" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="text-label-mono font-label-mono text-primary">ENCRYPTION_ACTIVE</span>
+</div>
+<p class="text-code-sm font-code-sm text-on-surface-variant leading-tight">
+                    AES-256-GCM rotation in progress. Next cycle: 142s.
+                </p>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-surface-container-lowest/90 backdrop-blur-xl flex justify-around items-center px-4 pb-safe border-t border-primary/20 z-50">
+<div class="flex flex-col items-center justify-center text-primary drop-shadow-[0_0_5px_rgba(0,230,57,0.6)] group transition-all">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">hub</span>
+<span class="font-label-mono text-label-mono mt-1">NODES</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-secondary transition-all active:translate-y-0.5 duration-75">
+<span class="material-symbols-outlined">security</span>
+<span class="font-label-mono text-label-mono mt-1">SHIELD</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-secondary transition-all active:translate-y-0.5 duration-75">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-label-mono text-label-mono mt-1">MACROS</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-secondary transition-all active:translate-y-0.5 duration-75">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-mono text-label-mono mt-1">SYSTEM</span>
+</div>
+</nav>
+<!-- Navigation Drawer (Desktop only/Slide-in) -->
+<aside class="fixed inset-y-0 left-0 z-[60] flex flex-col h-full w-80 rounded-r-xl bg-surface-container-low border-r border-primary/30 shadow-[4px_0_20px_rgba(0,0,0,0.8)] -translate-x-full transition-transform duration-300" id="side-drawer">
+<div class="p-6 border-b border-primary/20">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/40">
+<span class="material-symbols-outlined text-primary text-3xl">account_circle</span>
+</div>
+<div>
+<h2 class="text-headline-md font-headline-md text-primary leading-none">OPERATOR_01</h2>
+<p class="text-code-sm text-on-surface-variant">IP: 192.168.1.104</p>
+</div>
+</div>
+<p class="mt-4 text-[10px] font-label-mono text-primary/40 uppercase tracking-widest">RISC-V KERNEL 6.1</p>
+</div>
+<nav class="flex-1 p-4 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 bg-primary/10 text-primary border-l-4 border-primary transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard_customize</span>
+<span class="font-body-md text-body-md">Command Center</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-body-md text-body-md">Access Logs</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-body-md text-body-md">Network Map</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span class="font-body-md text-body-md">Encryption Keys</span>
+</a>
+</nav>
+<div class="p-4 border-t border-primary/20">
+<a class="flex items-center gap-4 px-4 py-3 text-error/80 hover:text-error hover:bg-error/10 transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md text-body-md">Logout</span>
+</a>
+</div>
+</aside>
+<script>
+        // Simple micro-interactions
+        const sideDrawer = document.getElementById('side-drawer');
+        const leadingIcon = document.querySelector('header span.material-symbols-outlined');
+
+        let drawerOpen = false;
+        leadingIcon.addEventListener('click', () => {
+            drawerOpen = !drawerOpen;
+            sideDrawer.style.transform = drawerOpen ? 'translateX(0)' : 'translateX(-100%)';
+        });
+
+        // Atmospheric flicker effect on primary UI elements
+        setInterval(() => {
+            const elements = document.querySelectorAll('.hud-border');
+            const target = elements[Math.floor(Math.random() * elements.length)];
+            target.classList.add('crt-flicker');
+            setTimeout(() => target.classList.remove('crt-flicker'), 200);
+        }, 5000);
+
+        // Simulated data stream for the terminal
+        const terminal = document.querySelector('.terminal-scroll');
+        const logEntries = [
+            "[ 0.007142] DHCP lease renewed: 192.168.1.104",
+            "[ 0.008451] Firewall: Blocked attempt from 84.15.22.10",
+            "[ 0.009121] IoT Sync: Smart_Lamp_03 reported 80% brightness",
+            "[ 0.010214] Security Core: Heartbeat signal RECEIVED",
+            "[ 0.011421] Data Node: Backup completed successfully"
+        ];
+
+        setInterval(() => {
+            const p = document.createElement('p');
+            p.className = 'text-primary/60';
+            p.innerText = logEntries[Math.floor(Math.random() * logEntries.length)];
+            terminal.insertBefore(p, terminal.lastElementChild);
+            if (terminal.children.length > 20) terminal.removeChild(terminal.children[0]);
+            terminal.scrollTop = terminal.scrollHeight;
+        }, 3000);
+    </script>
+</body></html>

