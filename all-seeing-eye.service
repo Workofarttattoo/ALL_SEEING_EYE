@@ -1,0 +1,14 @@
+[Unit]
+Description=All-Seeing Eye Neo-Occult Command Center
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/all-seeing-eye
+ExecStart=/opt/all-seeing-eye/pi_startup_2026.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

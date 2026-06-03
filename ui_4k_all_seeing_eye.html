@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SYSTEM_HUD // OVERRIDE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&amp;family=Space+Mono:wght@400;700&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+
+        .xerox-grain {
+            position: relative;
+        }
+        .xerox-grain::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+            opacity: 0.15;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .glitch-border {
+            box-shadow: 4px 4px 0px 0px #00fbfb;
+        }
+
+        .glitch-border-magenta {
+            box-shadow: -4px -4px 0px 0px #ff00ff;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.9; }
+            5% { opacity: 0.5; }
+            10% { opacity: 0.9; }
+            15% { opacity: 1; }
+            80% { opacity: 0.9; }
+            90% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .flicker-magenta {
+            animation: flicker 4s infinite;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        .scanline-bg {
+            background: linear-gradient(to bottom, rgba(255, 0, 255, 0.05) 50%, rgba(0, 0, 0, 0) 50%);
+            background-size: 100% 4px;
+        }
+
+        .sigil-bg {
+            mask-image: linear-gradient(to bottom, black, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        /* Occult Border Styles */
+        .jagged-hr {
+            height: 2px;
+            background: repeating-linear-gradient(90deg, #ff00ff 0, #ff00ff 10px, transparent 10px, transparent 15px);
+            transform: skewY(-1deg);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f0438;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff00ff;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#2c1245",
+                      "outline-variant": "#564052",
+                      "on-secondary-fixed": "#002020",
+                      "secondary": "#ffffff",
+                      "surface-bright": "#472d60",
+                      "on-surface-variant": "#dcbed4",
+                      "inverse-surface": "#f0dbff",
+                      "on-tertiary-fixed": "#2f1500",
+                      "outline": "#a4899d",
+                      "primary-container": "#ff00ff",
+                      "surface-dim": "#1f0438",
+                      "on-error": "#690005",
+                      "secondary-container": "#00fbfb",
+                      "primary-fixed": "#ffd7f5",
+                      "surface-container-lowest": "#190032",
+                      "on-secondary-container": "#007070",
+                      "background": "#1f0438",
+                      "on-tertiary": "#4d2600",
+                      "on-secondary-fixed-variant": "#004f4f",
+                      "tertiary": "#ffb77d",
+                      "tertiary-fixed": "#ffdcc3",
+                      "on-primary-fixed-variant": "#810081",
+                      "error-container": "#93000a",
+                      "inverse-primary": "#a900a9",
+                      "tertiary-container": "#db7800",
+                      "tertiary-fixed-dim": "#ffb77d",
+                      "on-tertiary-container": "#452100",
+                      "surface-variant": "#43295b",
+                      "primary": "#ffabf3",
+                      "surface-container-low": "#280e40",
+                      "error": "#ffb4ab",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary": "#003737",
+                      "on-primary": "#5b005b",
+                      "on-primary-container": "#510051",
+                      "surface-tint": "#ffabf3",
+                      "surface-container-high": "#371e50",
+                      "primary-fixed-dim": "#ffabf3",
+                      "on-tertiary-fixed-variant": "#6e3900",
+                      "surface": "#1f0438",
+                      "inverse-on-surface": "#3e2457",
+                      "on-primary-fixed": "#380038",
+                      "secondary-fixed-dim": "#00dddd",
+                      "surface-container-highest": "#43295b",
+                      "on-background": "#f0dbff",
+                      "secondary-fixed": "#00fbfb",
+                      "on-surface": "#f0dbff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "unit": "4px",
+                      "container-max": "1440px",
+                      "margin-desktop": "40px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "body-md": ["JetBrains Mono"],
+                      "label-caps": ["Space Mono"],
+                      "headline-md-mobile": ["Syne"],
+                      "code-sm": ["JetBrains Mono"],
+                      "body-lg": ["JetBrains Mono"],
+                      "display-xl": ["Syne"],
+                      "display-lg": ["Syne"],
+                      "headline-md": ["Syne"]
+              },
+              "fontSize": {
+                      "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                      "label-caps": ["11px", {"lineHeight": "12px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                      "headline-md-mobile": ["24px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "display-xl": ["80px", {"lineHeight": "72px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                      "display-lg": ["48px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "headline-md": ["32px", {"lineHeight": "36px", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen selection:bg-secondary-container selection:text-on-secondary-container overflow-x-hidden xerox-grain"><div class="fixed inset-0 pointer-events-none opacity-10 z-[-1]"><img alt="Flower of Life" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkpbMblHV-NOwkdwx1cMCwsanl91bc5h2RY020eLCi_M71efDSP-MVeFl6tDRL9TcW-3IhQnLk8oBZuDcXVEhN91X6kQRQLp3KO2jdO7vL0jQfAZoHxJqlxwl4mcg8m4iLAzYaQd79t0Y8gDL69QS56QoTUhSx4-2PRRnBm6L_puizU7cWJEw1cjk-QVg_8iYHUoR9MQSIk17_ZghJlqMDrxEuDUdFtaYCfui3OmkkYSWp-zTqP4JuzJf2Sz7th-kE_KZapftUTKA"/></div>
+<!-- NAVIGATION SHELL: DRAWER (Desktop) -->
+<nav class="fixed inset-y-0 left-0 z-[60] flex flex-col p-margin-mobile gap-gutter h-full w-64 border-r-2 border-primary bg-surface-container hidden md:flex">
+<div class="mb-8">
+<h1 class="font-headline-md text-primary drop-shadow-sm">SYSTEM_OVERRIDE</h1>
+<p class="text-[10px] text-primary-container font-label-caps opacity-60">KERNEL_REVISION::v.0.0.1_ALPHA</p>
+</div>
+<div class="flex flex-col gap-4">
+<a class="flex items-center gap-3 p-2 text-on-secondary-container bg-secondary-container font-bold border-l-4 border-primary transition-all duration-150 ease-in-out hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+<span class="font-body-md uppercase italic">CORE_DUMP</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant hover:bg-surface-bright transition-all duration-150 ease-in-out hover:translate-x-1 hover:text-secondary-container" href="#">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+<span class="font-body-md uppercase italic">NET_VORTEX</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant hover:bg-surface-bright transition-all duration-150 ease-in-out hover:translate-x-1 hover:text-secondary-container" href="#">
+<span class="material-symbols-outlined" data-icon="token">token</span>
+<span class="font-body-md uppercase italic">SIGIL_MGMT</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant hover:bg-surface-bright transition-all duration-150 ease-in-out hover:translate-x-1 hover:text-secondary-container" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-body-md uppercase italic">LOG_ABYSS</span>
+</a>
+<div class="mt-auto">
+<a class="flex items-center gap-3 p-2 text-on-surface-variant hover:bg-error transition-all duration-150 ease-in-out hover:translate-x-1 group" href="#">
+<span class="material-symbols-outlined group-hover:text-on-error" data-icon="cancel">cancel</span>
+<span class="font-body-md uppercase italic group-hover:text-on-error">KILL_SWITCH</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- TOP BAR -->
+<header class="fixed top-0 right-0 left-0 md:left-64 flex justify-between items-center px-margin-mobile py-2 w-full z-50 bg-background border-b-2 border-primary-container bg-opacity-80">
+<div class="flex items-center gap-2">
+<img alt="Engraver Style All-Seeing Eye" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcvmHNf5-15FtmvWzLFY15JEXmqxXCMHa3S5SpyHaVRThBh6Kr9-lXZh5ornUwZ7mzYb8FKYicCLlDqkjNutOc0zX7HDKH5HegYTOIWXzdf7wd2T_AUq47TRca_SxsaJLnuMcZbkpl6mHX2n3qc2AoElBcpjVOpK9Jnlh82EqWRRcTBl8KDvFe8wSUWjhOmNirAg0DUpGnieQCqolZBFPRkQ8-lYp4KiDs63JZFmNvR50UfK0TOWzM6HGTZ0cfVcU6KtUrVWOo4vk"/>
+<span class="font-headline-md-mobile text-headline-md-mobile tracking-tighter text-primary border-b-2 border-secondary-container">ALL-SEEING EYE</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-outline text-xs hidden sm:block">STATUS: COMPROMISED</span>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:text-secondary-container transition-all" data-icon="terminal">terminal</span>
+</div>
+</header>
+<!-- MAIN CONTENT CANVAS -->
+<main class="pt-20 pb-24 md:pb-8 px-margin-mobile md:pl-[18rem] md:pr-margin-desktop min-h-screen relative">
+<!-- Background Sigils (Hybrid of image + css effects) -->
+<div class="fixed inset-0 pointer-events-none opacity-20 z-0 sigil-bg flex items-center justify-center overflow-hidden">
+<img alt="Large cyber-sigils overlay" class="w-full max-w-4xl rotate-12 scale-150 mix-blend-screen invert" data-alt="A massive, complex collection of occult cyber-sigils and electronic circuit diagrams rendered in a gritty, high-contrast xerox style. The central motif is a large, hand-drawn technological eye surrounded by jagged lines, geometric patterns, and spiritual symbols. The visual language blends ancient alchemy with modern hardware engineering, presented on a dark, textured background with subtle glows of neon magenta and electric cyan light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVHwP0uPq79G8QxVqItg9iuNXIsQMRLxB9mIWTjZIEtFR1JBgBwcye87G9AEDojfd6wfqRHs28fZDWQ4s-V5pYS-Td3RuYMi6Lm_PMqMvGZpKdNjY-Tsf6xNt1Xs5FnI17eq4TyhDMUCP2jVVv6D01zuYtEPQotd2j0PHujTrhTI3-4S5dfy78c6uR_T-GBQWleLwDb04wGKb2cIlynQXAoEAyACfNcLkgyI3bSB4bJJ65bRlnqCsajO7d9BhXaC5JF9r7MtwIia4"/>
+</div>
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- SECTION: CPU RESOURCES (Asymmetric Card) -->
+<section class="md:col-span-4 space-y-4">
+<div class="bg-surface-container-high p-4 border-2 border-secondary-container glitch-border xerox-grain">
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h2 class="font-label-caps text-label-caps text-secondary-container uppercase">CPU_RESOURCES</h2>
+<span class="text-[10px] text-primary">CORE_COUNT: 16</span>
+</div>
+<div class="space-y-6">
+<!-- Core Load bars with custom styling -->
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-code-sm">
+<span>RISC-V_HART_0</span>
+<span class="text-secondary-container">88%</span>
+</div>
+<div class="h-1 bg-surface-dim overflow-hidden">
+<div class="h-full bg-primary-container animate-pulse" style="width: 88%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-code-sm">
+<span>RISC-V_HART_1</span>
+<span class="text-secondary-container">12%</span>
+</div>
+<div class="h-1 bg-surface-dim overflow-hidden">
+<div class="h-full bg-secondary-container" style="width: 12%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-code-sm">
+<span>RISC-V_HART_2</span>
+<span class="text-secondary-container">54%</span>
+</div>
+<div class="h-1 bg-surface-dim overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 54%"></div>
+</div>
+</div>
+</div>
+<div class="mt-4 space-y-2 border-t border-outline-variant/30 pt-4"><div class="flex justify-between items-center"><span class="text-[9px] font-label-caps text-secondary-container opacity-70">BIO-SIGNAL RESONANCE</span><span class="text-[10px] font-code-sm text-secondary-container">432Hz Sync</span></div><div class="flex justify-between items-center"><span class="text-[9px] font-label-caps text-primary opacity-70">AETHER FREQUENCY</span><span class="text-[10px] font-code-sm text-primary">0.88λ Resonance</span></div></div><div class="mt-6 border-t border-outline-variant pt-2 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-ping"></div>
+<span class="text-[9px] uppercase italic text-on-surface-variant">Unstable entropy detected in cache L3</span>
+</div>
+</div>
+<!-- Memory Allocation (Small Offset Card) -->
+<div class="bg-surface-container-low p-4 border-2 border-primary-container ml-4 md:-ml-2 transform -rotate-1 relative">
+<div class="absolute -top-3 -right-3 bg-primary text-on-primary px-2 py-1 text-[10px] font-bold">LOCKED</div>
+<h2 class="font-label-caps text-label-caps text-primary uppercase mb-3">MEM_ALLOC</h2>
+<div class="flex gap-1 mb-4 h-8">
+<div class="flex-1 bg-secondary-container opacity-90"></div>
+<div class="flex-1 bg-secondary-container opacity-70"></div>
+<div class="flex-1 bg-secondary-container opacity-40"></div>
+<div class="flex-1 bg-primary-container"></div>
+<div class="flex-1 bg-primary-container opacity-50"></div>
+<div class="flex-1 bg-outline-variant"></div>
+</div>
+<div class="text-[10px] font-code-sm text-outline">
+<p>PAGE_SIZE: 4096 bytes</p>
+<p>SWAP_USED: 1.2 GB (CRITICAL)</p>
+</div>
+</div>
+<div class="bg-surface-container-low border-2 border-tertiary-container p-4 mt-gutter relative overflow-hidden xerox-grain transform rotate-1"><div class="absolute top-0 left-0 bg-tertiary-container text-on-tertiary-container px-2 py-0.5 text-[10px] font-bold font-label-caps">SYSTEM_HARMONICS</div><h2 class="font-display-lg text-lg uppercase text-tertiary mb-2 mt-2">AURA CLEANSER</h2><img alt="Aura Cleanser Visual" class="w-full border border-tertiary opacity-80 mix-blend-screen mb-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSXNq_toPhq6FNYDQgmhiPYPTT11Nj-objNRp8Fc2da648oUnGIVtz6mLBIBN53RUb9QK-i3u0VF6YYIwvJ55h_IgsUozHoZv93Ocx6-cDor_qekVUhSp3V0RuH_urKRz5Ywu53rl8gEKmSKPSp5A0Azyuaq8HqOGSVt3RIjcf_vFRDjejGkZHsMwlfmBSPJ3PmHxHudtkud3dQyaSk_WGixivi3t9Gk8MyW1Sj_77CLD3wYnt0bhJe-bWP84H25EtNtEYKria2Xo"/><div class="space-y-1"><p class="font-code-sm text-[10px] text-tertiary-fixed">STATUS: PULSING...</p><div class="h-1 bg-surface-dim w-full"><div class="h-full bg-tertiary animate-pulse" style="width: 75%"></div></div></div></div></section>
+<button onclick="deduceSignal()" class="mt-2 bg-tertiary text-on-tertiary px-3 py-1 text-[9px] font-bold font-label-caps border border-tertiary hover:bg-transparent hover:text-tertiary transition-all">DEDUCE_ORIGIN</button>
+<p id="deduction-result" class="mt-1 text-[8px] italic text-tertiary-fixed opacity-70"></p>
+<!-- SECTION: KERNEL LOGS (Main Data Terminal) -->
+<section class="md:col-span-8">
+<div class="bg-surface-container-lowest border-2 border-outline h-[500px] flex flex-col relative overflow-hidden glitch-border-magenta">
+<!-- Tab Header -->
+<div class="bg-surface-container flex items-center px-4 py-2 border-b-2 border-outline gap-4">
+<div class="w-3 h-3 bg-primary-container"></div>
+<h2 class="font-label-caps text-label-caps text-on-surface italic">KERNEL_LOG_STREAM</h2>
+<div class="ml-auto flex gap-2">
+<span class="material-symbols-outlined text-xs text-outline cursor-pointer" data-icon="close">close</span>
+</div>
+</div>
+<!-- Terminal Content -->
+<div class="flex-1 p-4 font-code-sm text-code-sm text-on-surface-variant overflow-y-auto space-y-1 scanline-bg" id="terminal-content">
+<p class="text-secondary-container">[0.000000] Linux version 6.1.0-riscv64-occult (root@eye) #1 PREEMPT</p>
+<p>[0.000000] OF: fdt: Ignoring memory range 0x80000000 - 0x80200000</p>
+<p>[0.000124] CPU0: RISC-V Hart ID 0, ISA RV64IMAFDCV</p>
+<p class="flicker-magenta">[0.001452] !! INTRUSION DETECTED IN SIGIL_BUFFER !!</p>
+<p>[0.002871] SBI v0.3: OpenSBI v1.2</p>
+<p>[0.003420] memblock_reserve: [0x0000000080000000-0x0000000080000fff] flags 0x0</p>
+<p class="text-primary">[0.584102] EXT4-fs (vda): mounted filesystem with ordered data mode</p>
+<p>[1.102341] systemd[1]: Inserted module 'autofs4'</p>
+<p>[1.104552] systemd[1]: Created slice User Slice of UID 0.</p>
+<p>[1.205561] systemd[1]: Starting System Sigil Synchronization...</p>
+<p class="text-secondary-container font-bold italic underline">[SEC] ENCRYPTED TUNNEL ESTABLISHED: 0x4F_A2_88_01</p>
+<p>[2.450012] hub 1-0:1.0: 1 port detected</p>
+<p>[3.120000] input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/input/input2</p>
+<p class="flicker-magenta animate-pulse">&gt;&gt;&gt; ATTEMPTING HANDSHAKE WITH THE ABYSS...</p>
+<p>[4.001245] sched_clock: 64 bits at 100ns, resolution 100ns</p>
+<p>[4.102030] Calibrating delay loop (skipped)... 20.00 BogoMIPS (lpj=40000)</p>
+<p>[5.010203] devtmpfs: initialized</p>
+<p class="text-secondary-container">[OK] SYSTEM_HUD OVERRIDE COMPLETE.</p>
+</div>
+<!-- Hand-drawn accent overlay -->
+<div class="absolute bottom-4 right-4 pointer-events-none opacity-40">
+<div class="w-16 h-1 bg-primary mb-1 transform -rotate-12"></div>
+<div class="w-12 h-1 bg-primary transform -rotate-12 ml-4"></div>
+<p class="text-[8px] font-bold text-primary italic mt-2 uppercase">Verified by cult_root</p>
+</div>
+</div>
+<!-- Bottom Action Row -->
+<div class="mt-gutter flex flex-wrap gap-4 items-start">
+<button class="bg-surface-dim border-2 border-primary-container px-6 py-2 font-label-caps text-label-caps text-primary-container hover:bg-secondary-container hover:text-on-secondary-container transition-all active:scale-95 group">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+                            FLUSH_ENTROPY_BUFFER
+                        </span>
+</button>
+<button class="bg-primary-container text-on-primary-container border-2 border-primary px-6 py-2 font-label-caps text-label-caps hover:bg-secondary-container hover:border-secondary-container transition-all active:scale-95">
+                        REBOOT_NODE_01
+                    </button>
+</div>
+</section>
+</div>
+<!-- ASYMMETRIC FLOATING ELEMENTS -->
+<div class="hidden lg:block absolute bottom-12 right-margin-desktop w-48 p-4 bg-surface-container-highest border-2 border-secondary-container transform rotate-3 xerox-grain">
+<h3 class="font-label-caps text-[10px] text-on-surface-variant mb-2">NETWORK_LOAD</h3>
+<div class="flex items-end gap-1 h-12">
+<div class="w-2 bg-secondary-container h-[20%]"></div>
+<div class="w-2 bg-secondary-container h-[45%]"></div>
+<div class="w-2 bg-secondary-container h-[85%]"></div>
+<div class="w-2 bg-primary-container h-[95%] animate-pulse"></div>
+<div class="w-2 bg-secondary-container h-[60%]"></div>
+<div class="w-2 bg-secondary-container h-[30%]"></div>
+</div>
+<p class="text-[9px] mt-2 text-outline-variant font-code-sm">UPLINK: 420 MBPS</p>
+</div>
+<!-- OCCULT DIVIDERS -->
+<div class="my-12 jagged-hr opacity-50"></div>
+<a href="/zine" target="_blank" style="position: fixed; bottom: 5px; right: 5px; font-size: 8px; color: #1f0438; text-decoration: none; z-index: 1000; opacity: 0.2; cursor: crosshair;">[2066_ZINE]</a>
+</main>
+<!-- MOBILE NAVIGATION (Visible only on mobile) -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 bg-surface-dim border-t-2 border-outline-variant z-50 md:hidden">
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container p-2 border-2 border-secondary-container shadow-[4px_4px_0px_0px_rgba(0,251,251,1)]">
+<span class="material-symbols-outlined" data-icon="grain">grain</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline-variant p-2 opacity-70 hover:opacity-100 hover:scale-110 transition-transform duration-75">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline-variant p-2 opacity-70 hover:opacity-100 hover:scale-110 transition-transform duration-75">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline-variant p-2 opacity-70 hover:opacity-100 hover:scale-110 transition-transform duration-75">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+</button>
+</footer>
+<!-- GLITCH SCRIPT -->
+<script>
+        // Simulate real-time log updates
+        const terminal = document.getElementById('terminal-content');
+        const logs = [
+            "[!] ACCESS ATTEMPT FROM 192.168.0.254 (REJECTED)",
+            "[info] Thermal zone 0: package temp 62.5C",
+            "[warn] V-Sync signal drop detected in sector 9",
+            "[sigil] Auto-decrypting occult header... DONE",
+            "[data] Extracting ghost strings from kernel heap",
+            "[error] Out of divine memory at address 0xDEADBEEF"
+        ];
+
+        setInterval(() => {
+            if(Math.random() > 0.7) {
+                const p = document.createElement('p');
+                const log = logs[Math.floor(Math.random() * logs.length)];
+                p.textContent = `[${(new Date()).getTime().toString().slice(-6)}] ${log}`;
+                if(log.includes('[!]') || log.includes('[error]')) {
+                    p.className = 'flicker-magenta font-bold';
+                }
+                terminal.appendChild(p);
+                terminal.scrollTop = terminal.scrollHeight;
+
+                // Keep log size manageable
+                if (terminal.children.length > 50) {
+                    terminal.removeChild(terminal.firstChild);
+                }
+            }
+        }, 1500);
+    </script>
+<script>
+    // Ghost Box Integration
+    async function updateGhostBox() {
+        try {
+            const res = await fetch("/ghostbox");
+            const data = await res.json();
+            const resonanceEl = document.querySelector("span:contains('BIO-SIGNAL RESONANCE')").nextElementSibling;
+            const frequencyEl = document.querySelector("span:contains('AETHER FREQUENCY')").nextElementSibling;
+            if (resonanceEl) resonanceEl.textContent = `${(data.resonance * 100).toFixed(0)}% Sync`;
+            if (frequencyEl) frequencyEl.textContent = `${data.frequency} (${data.category})`;
+
+            // Add to terminal as spirit fragment
+            if(data.data.length > 4) {
+                const p = document.createElement("p");
+                p.className = "text-tertiary font-bold animate-pulse";
+                p.textContent = `[GHOST_BOX] Received Fragment: ${data.data.toUpperCase()}`;
+                document.getElementById("terminal-content").appendChild(p);
+            }
+        } catch(e) {}
+    }
+    setInterval(updateGhostBox, 4000);
+</script>
+</body></html><script>
+    // Ghost Box Integration (Refined)
+    async function updateGhostBox() {
+        try {
+            const res = await fetch("/ghostbox");
+            const data = await res.json();
+
+            // Find elements by text content
+            const spans = document.getElementsByTagName('span');
+            let resonanceEl, frequencyEl;
+            for (let span of spans) {
+                if (span.textContent === 'BIO-SIGNAL RESONANCE') resonanceEl = span.nextElementSibling;
+                if (span.textContent === 'AETHER FREQUENCY') frequencyEl = span.nextElementSibling;
+            }
+
+            if (resonanceEl) resonanceEl.textContent = `${(data.resonance * 100).toFixed(0)}% Sync`;
+            if (frequencyEl) frequencyEl.textContent = `${data.frequency} (${data.category})`;
+
+            // Add to terminal as spirit fragment if it's a word fragment
+            if(data.data.length > 4) {
+                const terminal = document.getElementById("terminal-content");
+                if (terminal) {
+                    const p = document.createElement("p");
+                    p.className = "text-tertiary font-bold animate-pulse";
+                    p.textContent = `[GHOST_BOX] ${data.frequency} >> ${data.data.toUpperCase()}`;
+                    terminal.appendChild(p);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            }
+        } catch(e) {}
+    }
+    setInterval(updateGhostBox, 3000);
+</script>
+<script>
+    async function deduceSignal() {
+        const resultEl = document.getElementById("deduction-result");
+        resultEl.textContent = "DEDUCING...";
+        try {
+            const res = await fetch("/deduce");
+            const data = await res.json();
+            resultEl.textContent = data.result;
+
+            const p = document.createElement("p");
+            p.className = "text-primary italic";
+            p.textContent = `[ANALYSIS] ${data.result}`;
+            document.getElementById("terminal-content").appendChild(p);
+        } catch(e) {
+            resultEl.textContent = "ERROR IN AETHER";
+        }
+    }
+</script>
