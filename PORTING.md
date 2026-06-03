@@ -1,5 +1,16 @@
 # Porting Guide: All-Seeing Eye to RISC-V Smarthome Panel
 
+## Hardware Pre-requisites
+- **Board:** Lichee Pi based (D1/D1s/RV1106).
+- **SD Card:** 16GB+ Class 10 MicroSD (Must be flashed with Linux OS).
+- **Power:** 5V 2A DC supply via USB-C or Terminal Block.
+- **Access:** USB-to-UART Adapter for initial configuration.
+
+## OS Setup
+See `FLASHING_GUIDE.md` for instructions on how to prepare your SD card. The All-Seeing Eye requires a working Linux environment (Tina or Debian) to run the Node.js backend.
+
+# Porting Guide: All-Seeing Eye to RISC-V Smarthome Panel
+
 This document outlines the hardware-specific dependencies and required adjustments for porting the PoisonTap 2026 / All-Seeing Eye project to a RISC-V based Linux smarthome panel.
 
 ## Hardware Dependencies in `pi_startup_2026.sh`

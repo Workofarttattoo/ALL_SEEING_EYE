@@ -42,3 +42,11 @@ ip addr show wlan0
 Once the panel has an IP, you can `ssh root@<IP_ADDRESS>` from your main computer.
 
 [ GHOST IN THE SERIAL ]
+
+## Boot Log Analysis
+If your screen is black but you are connected via UART, look for these markers during power-on:
+- `[SPL] `: The secondary program loader is working.
+- `OpenSBI vX.X`: The RISC-V supervisor interface is initializing.
+- `Starting kernel ...`: The Linux OS is booting.
+
+If you see these but the screen is still black, the **Display Driver** in your OS image is incorrect or the **FPC cable** is loose.
