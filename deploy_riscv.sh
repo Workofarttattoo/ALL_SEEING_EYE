@@ -4,7 +4,9 @@ set -euo pipefail
 # All-Seeing Eye | RISC-V Automated Deployment
 INSTALL_DIR="/opt/all-seeing-eye"
 
-echo "[*] Preparing All-Seeing Eye deployment..."
+echo "--------------------------------------------------"
+echo "[*] ASE DEPLOYMENT: INITIATING OVER SERIAL"
+echo "--------------------------------------------------"
 
 # 1. Create installation directory
 sudo mkdir -p "$INSTALL_DIR"

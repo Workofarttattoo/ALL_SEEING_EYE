@@ -54,3 +54,11 @@ The system is designed to pass inspections. By default, it serves `waft_ui.html`
     1. Locate the **Living Room** lighting slider.
     2. Move it to exactly **66%**.
     3. A secure partition boot sequence will initialize, redirecting you to the `/occult` command center.
+
+## Initial Access via UART
+
+If you are using the UART port on the Lichee board:
+- Connect your USB-to-UART adapter (GND, TX->RX, RX->TX).
+- Set baud rate to **115200**.
+- Once in the shell, use `deploy_riscv.sh` to load the firmware.
+- See `UART_GUIDE.md` for detailed connection commands.
