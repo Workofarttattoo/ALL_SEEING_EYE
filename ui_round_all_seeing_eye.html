@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ASE // ROUND</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0c0118;
+    --bg-2: #1f0438;
+    --magenta: #ff00ff;
+    --cyan: #00fbfb;
+    --gold: #f7c948;
+    --on: #f0dbff;
+    --dim: #a4899d;
+    --error: #ff3366;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, var(--bg-2) 0%, var(--bg) 70%, #000 100%);
+    color: var(--on);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { display: grid; place-items: center; }
+
+  /* Round viewport — clamps to the smaller dimension so it stays circular. */
+  .dial {
+    --size: min(100vw, 100vh);
+    width: var(--size); height: var(--size);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,0,255,0.12) 0%, rgba(31,4,56,0) 60%),
+      radial-gradient(circle at 50% 50%, var(--bg-2) 0%, var(--bg) 80%);
+    box-shadow:
+      inset 0 0 80px rgba(255, 0, 255, 0.18),
+      inset 0 0 14px rgba(0, 251, 251, 0.25);
+    isolation: isolate;
+  }
+  /* Bezel arcs */
+  .dial::before, .dial::after {
+    content: "";
+    position: absolute; inset: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .dial::before {
+    border: 1px solid rgba(255,0,255,0.55);
+    box-shadow: 0 0 8px rgba(255,0,255,0.6);
+  }
+  .dial::after {
+    inset: 14px;
+    border: 1px dashed rgba(0,251,251,0.55);
+    animation: spin 38s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin-rev { to { transform: rotate(-360deg); } }
+  @keyframes flicker {
+    0%,100% { opacity: 1; }
+    5% { opacity: 0.45; }
+    7% { opacity: 1; }
+    50% { opacity: 0.92; }
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+  @keyframes glyphdrift {
+    from { stroke-dashoffset: 0; }
+    to   { stroke-dashoffset: -400; }
+  }
+
+  /* Rotating sigil ring (SVG) */
+  .ring {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+  .ring.outer { animation: spin 60s linear infinite; }
+  .ring.inner { animation: spin-rev 42s linear infinite; }
+  .ring text {
+    fill: var(--cyan);
+    font-family: "Syne", serif;
+    font-size: 9px;
+    letter-spacing: 6px;
+    text-shadow: 0 0 6px var(--cyan);
+    opacity: 0.85;
+  }
+  .ring.outer text { fill: var(--magenta); font-size: 11px; }
+
+  /* Center eye */
+  .eye-wrap {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    z-index: 2;
+  }
+  .eye {
+    width: 38%; aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 45%, var(--gold) 0%, #b76d00 22%, #000 65%),
+      radial-gradient(circle at 50% 50%, var(--bg-2), var(--bg));
+    box-shadow:
+      0 0 24px rgba(247,201,72,0.55),
+      inset 0 0 18px rgba(255,0,255,0.4);
+    position: relative;
+    animation: pulse 4.2s ease-in-out infinite;
+  }
+  .eye::after {
+    content: "";
+    position: absolute; inset: 36%;
+    border-radius: 50%;
+    background: #000;
+    box-shadow: 0 0 12px var(--magenta);
+  }
+
+  /* HUD strips top/bottom inside the circle */
+  .hud {
+    position: absolute; left: 0; right: 0;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .hud.top    { top: 7%; color: var(--magenta); text-shadow: 0 0 6px var(--magenta); animation: flicker 6s infinite; }
+  .hud.bottom { bottom: 8%; color: var(--cyan);    text-shadow: 0 0 6px var(--cyan); }
+
+  .hud .label { opacity: 0.8; }
+  .hud .value { color: var(--gold); text-shadow: 0 0 6px var(--gold); }
+
+  /* Side stats */
+  .stat {
+    position: absolute;
+    font-size: 8px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .stat.l { left: 12%; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
+  .stat.r { right: 12%; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
+
+  /* Chat overlay — invoked by tapping the eye */
+  .chat {
+    position: absolute; inset: 18%;
+    border-radius: 50%;
+    background: rgba(12,1,24,0.92);
+    border: 1px solid var(--magenta);
+    box-shadow: 0 0 30px rgba(255,0,255,0.5), inset 0 0 18px rgba(0,251,251,0.2);
+    display: none;
+    flex-direction: column;
+    padding: 6% 7% 5%;
+    z-index: 5;
+  }
+  .chat.open { display: flex; }
+  .chat .log {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 10px;
+    line-height: 1.35;
+    color: var(--on);
+    padding-right: 4px;
+    scrollbar-width: thin;
+  }
+  .chat .log .u { color: var(--cyan); }
+  .chat .log .a { color: var(--gold); }
+  .chat .log .e { color: var(--error); }
+  .chat .row {
+    display: flex; gap: 4px; margin-top: 4px;
+  }
+  .chat input {
+    flex: 1; min-width: 0;
+    background: rgba(0,251,251,0.06);
+    border: 1px solid var(--cyan);
+    color: var(--on);
+    font-family: inherit;
+    font-size: 10px;
+    padding: 4px 6px;
+    border-radius: 999px;
+    outline: none;
+  }
+  .chat button {
+    background: var(--magenta);
+    color: #000;
+    border: none;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 9px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 2px;
+  }
+  .chat button.x {
+    background: transparent;
+    color: var(--magenta);
+    border: 1px solid var(--magenta);
+  }
+  .chat .head {
+    font-family: "Syne", serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-align: center;
+    color: var(--magenta);
+    margin-bottom: 4px;
+  }
+  /* Watch / phone breakpoints: keep the inner UI legible on 240×240 too. */
+  @media (max-width: 320px) {
+    .hud { font-size: 7px; letter-spacing: 2px; }
+    .chat { inset: 12%; padding: 5%; }
+    .chat .log, .chat input { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+  <div class="dial" id="dial" aria-label="All-Seeing Eye round dial">
+    <!-- Rotating sigil rings -->
+    <svg class="ring outer" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path id="ring-outer" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0" />
+      </defs>
+      <text><textPath href="#ring-outer">ALL · SEEING · EYE · DIVINE · SIGNAL · WATCH · IN · GRACE · </textPath></text>
+    </svg>
+    <svg class="ring inner" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path id="ring-inner" d="M100,100 m-68,0 a68,68 0 1,1 136,0 a68,68 0 1,1 -136,0" />
+      </defs>
+      <text><textPath href="#ring-inner">ECHO · GHOST · AETHER · BIO · 86PANEL · VENICE · UNCENSORED · </textPath></text>
+    </svg>
+
+    <div class="hud top">
+      <span class="label">SIGNAL</span>
+      <span class="value" id="signal-val">— MHz</span>
+    </div>
+
+    <div class="stat l" id="stat-l">PWR · 100%</div>
+    <div class="stat r" id="stat-r">LINK · ONLINE</div>
+
+    <div class="eye-wrap" id="eye-wrap" title="tap to invoke">
+      <div class="eye"></div>
+    </div>
+
+    <div class="hud bottom">
+      <span id="clock">--:--:--</span>
+      &nbsp;·&nbsp;
+      <span id="mode">COVERT</span>
+    </div>
+
+    <!-- Chat overlay -->
+    <div class="chat" id="chat" role="dialog" aria-modal="true" aria-label="Venice chat">
+      <div class="head">VENICE LINK</div>
+      <div class="log" id="log"><span class="a">[venice] ready. ask the unaskable.</span></div>
+      <div class="row">
+        <input id="prompt" type="text" placeholder="speak" autocomplete="off" />
+        <button id="send">SEND</button>
+        <button id="close" class="x">×</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --- live clock ---
+  const clockEl = document.getElementById('clock');
+  function tickClock() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    clockEl.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+  tickClock(); setInterval(tickClock, 1000);
+
+  // --- ghost-box signal polling (graceful if backend absent) ---
+  const signalEl = document.getElementById('signal-val');
+  async function pollSignal() {
+    try {
+      const r = await fetch('/ghostbox', { cache: 'no-store' });
+      if (!r.ok) throw new Error(r.statusText);
+      const j = await r.json();
+      signalEl.textContent = `${j.frequency} · ${j.category}`;
+    } catch {
+      // standalone HTML — still pulse something
+      const f = (88 + Math.random() * 20).toFixed(2);
+      signalEl.textContent = `${f} MHz · LOCAL`;
+    }
+  }
+  pollSignal(); setInterval(pollSignal, 4000);
+
+  // --- chat overlay ---
+  const chatEl    = document.getElementById('chat');
+  const eyeWrap   = document.getElementById('eye-wrap');
+  const closeBtn  = document.getElementById('close');
+  const sendBtn   = document.getElementById('send');
+  const promptEl  = document.getElementById('prompt');
+  const logEl     = document.getElementById('log');
+  const history   = [];
+
+  function append(role, text) {
+    const span = document.createElement('div');
+    span.className = role === 'user' ? 'u' : role === 'error' ? 'e' : 'a';
+    span.textContent = (role === 'user' ? '› ' : role === 'error' ? '!! ' : '· ') + text;
+    logEl.appendChild(span);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  eyeWrap.addEventListener('click', () => {
+    chatEl.classList.add('open');
+    setTimeout(() => promptEl.focus(), 50);
+  });
+  closeBtn.addEventListener('click', () => chatEl.classList.remove('open'));
+
+  async function send() {
+    const text = promptEl.value.trim();
+    if (!text) return;
+    append('user', text);
+    history.push({ role: 'user', content: text });
+    promptEl.value = '';
+    sendBtn.disabled = true;
+    try {
+      const r = await fetch('/api/venice/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: text, history: history.slice(0, -1) }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || r.statusText);
+      append('assistant', j.reply);
+      history.push({ role: 'assistant', content: j.reply });
+    } catch (e) {
+      append('error', e.message);
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+  sendBtn.addEventListener('click', send);
+  promptEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+</script>
+</body>
+</html>
