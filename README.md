@@ -15,6 +15,41 @@ Optimized for Lichee RISC-V boards and 86mm Smart Home Panels.
 2. Run `./deploy_riscv.sh` to install and enable the autostart service.
 3. The panel will now boot directly into the "Legitimate" home UI.
 
+## Viewports
+
+| Route        | Target                              | File                              |
+|--------------|-------------------------------------|-----------------------------------|
+| `/`          | Covert WAFT smart-home UI           | `waft_ui.html`                    |
+| `/occult`    | Neo-Occult command center (square)  | `ui_4k_all_seeing_eye.html`       |
+| `/round`     | Round-display variant (watch/dial)  | `ui_round_all_seeing_eye.html`    |
+| `/zine`      | Hidden 2066 zine                    | `zine.html`                       |
+
+The square `/occult` view is tuned for the **Sipeed Lichee RV 86mm panel** and similar 480×480 / landscape touchscreens.
+The new `/round` view is tuned for round AMOLED dials (240×240, 466×466) and degrades cleanly on phones.
+
+## Venice link (uncensored chat fallback)
+
+Both `/occult` and `/round` ship a floating chat overlay that talks to Venice — used when the primary model refuses a question worth answering.
+
+1. Copy `.env.example` → `.env` and paste your key:
+   ```
+   VENICE_API_KEY=your-real-key
+   ```
+   `.env` is gitignored; never commit the key. **If a key has appeared in plaintext anywhere, rotate it.**
+2. Restart the backend. The chat overlay's status pill will flip to `⌁ linked`.
+3. Open `/occult` and click the magenta sigil bottom-right (or `Ctrl + \``). Open `/round` and tap the golden eye.
+
+Endpoints:
+- `POST /api/venice/ask` — `{ prompt, system?, model?, temperature?, max_tokens?, history? }` → `{ reply, model }`
+- `GET  /api/venice/health` — `{ ready, model }`
+
+The bridge is OpenAI-compatible. To swap Venice for your own Hugging Face inference endpoint (abliterated model, self-hosted, etc.) later, set:
+```
+VENICE_BASE_URL=https://your-endpoint/api/v1
+VENICE_MODEL=your-model-id
+```
+No code changes required.
+
 [ DISTRIBUTE OR DIE ]
 # DIVINE SIGNAL
 

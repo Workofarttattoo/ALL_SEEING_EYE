@@ -18,6 +18,21 @@ const MACROS = {
     // Example: Clear logs and rotate session
     exec('rm -f cookies.json && touch cookies.json');
     return { status: 'SESSION: PURGED' };
+  },
+  consecrate: () => {
+    console.log('[*] MACRO: CONSECRATE — flush neighbour cache, re-bless interfaces.');
+    exec('ip -s -s neigh flush all 2>/dev/null; ip link set dev wlan0 down 2>/dev/null; sleep 0.2; ip link set dev wlan0 up 2>/dev/null');
+    return { status: 'INTERFACES: CONSECRATED', sigil: 'יהוה' };
+  },
+  veil: () => {
+    console.log('[~] MACRO: VEIL — drop ICMP echo, fade from the aether.');
+    exec('nft add rule inet poison input icmp type echo-request drop 2>/dev/null');
+    return { status: 'VEIL: DRAWN', mode: 'PASSIVE_GHOST' };
+  },
+  invoke: () => {
+    console.log('[!] MACRO: INVOKE — wake panel, max brightness.');
+    exec('echo 0 > /sys/class/backlight/*/bl_power 2>/dev/null; for f in /sys/class/leds/*/brightness; do echo 255 > "$f" 2>/dev/null; done');
+    return { status: 'PANEL: AWOKEN', resonance: 'MAX' };
   }
 };
 

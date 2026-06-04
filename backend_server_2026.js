@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const path = require('path');
 const macros = require('./macros');
 const ghostBox = require('./ghost_box');
+const venice = require('./venice');
 
 const PORT = 3000;
 const WSS_PORT = 8443;
@@ -52,6 +53,18 @@ const server = http.createServer(async (req, res) => {
       res.end(html);
     } catch (e) {
       res.writeHead(500); res.end('Legitimate UI missing.');
+    }
+    return;
+  }
+
+  // ROUND viewport variant of the command center (handheld watch / round panel)
+  if (url.pathname === '/round') {
+    try {
+      const html = await fsPromises.readFile(path.join(__dirname, 'ui_round_all_seeing_eye.html'), 'utf8');
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end(html);
+    } catch (e) {
+      res.writeHead(500); res.end('Round firmware missing.');
     }
     return;
   }
@@ -107,6 +120,35 @@ const server = http.createServer(async (req, res) => {
     const result = macros.execute(name);
     res.writeHead(200, {'Content-Type':'application/json'});
     res.end(JSON.stringify(result));
+  } else if (url.pathname === '/api/venice/ask' && req.method === 'POST') {
+    let raw = '';
+    req.on('data', (c) => { raw += c; if (raw.length > 64 * 1024) req.destroy(); });
+    req.on('end', async () => {
+      try {
+        const body = raw ? JSON.parse(raw) : {};
+        if (!body.prompt || typeof body.prompt !== 'string') {
+          res.writeHead(400, {'Content-Type':'application/json'});
+          return res.end(JSON.stringify({ error: 'prompt required' }));
+        }
+        const out = await venice.ask({
+          prompt: body.prompt,
+          system: body.system,
+          model: body.model,
+          temperature: body.temperature,
+          maxTokens: body.max_tokens,
+          history: body.history,
+        });
+        res.writeHead(200, {'Content-Type':'application/json'});
+        res.end(JSON.stringify({ reply: out.reply, model: body.model || venice.DEFAULT_MODEL }));
+      } catch (e) {
+        res.writeHead(502, {'Content-Type':'application/json'});
+        res.end(JSON.stringify({ error: String(e.message || e) }));
+      }
+    });
+    return;
+  } else if (url.pathname === '/api/venice/health') {
+    res.writeHead(200, {'Content-Type':'application/json'});
+    res.end(JSON.stringify({ ready: Boolean(venice.resolveKey()), model: venice.DEFAULT_MODEL }));
   } else {
     res.writeHead(404); res.end();
   }
